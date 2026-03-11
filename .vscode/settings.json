@@ -1,0 +1,22 @@
+{
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": [],
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": false,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnType": false,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "todo-tree.tree.disableCompactFolders": false,
+  "todo-tree.tree.showBadges": true,
+  "typescript.experimental.useTsgo": true
+}

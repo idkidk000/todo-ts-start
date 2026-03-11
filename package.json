@@ -1,0 +1,45 @@
+{
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "@tanstack/react-router": "^1.166.7",
+    "@tanstack/react-start": "^1.166.7",
+    "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "@types/node": "^25.4.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260311.1",
+    "@vitejs/plugin-react": "^5.1.4",
+    "drizzle-kit": "^0.31.9",
+    "tsx": "^4.21.0",
+    "vite": "^7.3.1",
+    "vite-tsconfig-paths": "^6.1.1"
+  },
+  "license": "GPL-3.0-or-later",
+  "main": "index.ts",
+  "name": "todo",
+  "scripts": {
+    "build": "vite build",
+    "check": "tsgo --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:reset": "rm .local/data.db; pnpm db:migrate && pnpm db:seed",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "dev": "vite dev",
+    "format": "biome format --write; killall -9 biome",
+    "format:full": "biome check --write; killall -9 biome",
+    "lint": "biome lint --reporter=summary",
+    "lint:full": "biome lint"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

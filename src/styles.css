@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light dark;
+  interpolate-size: allow-keywords;
+}
+
+@theme inline {
+  --color-light: var(--color-gray-50);
+  --color-dark: var(--color-gray-950);
+  --color-foreground: light-dark(var(--color-dark), var(--color-light));
+  --color-background: light-dark(var(--color-light), var(--color-dark));
+}
+
+@layer base {
+  html {
+    @apply bg-background text-foreground transition-colors;
+  }
+  h1 {
+    @apply text-2xl font-semibold;
+  }
+  h2 {
+    @apply text-xl font-medium;
+  }
+  input,
+  button {
+    @apply border border-foreground/35 rounded px-4 py-1;
+  }
+  button {
+    @apply bg-foreground/20 hover:bg-foreground/10 active:bg-transparent focus-visible:bg-transparent transition-colors;
+  }
+}
