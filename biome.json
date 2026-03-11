@@ -58,7 +58,7 @@
       "recommended": true,
       "suspicious": {
         "noAsyncPromiseExecutor": "warn",
-        "noConsole": "warn",
+        "noConsole": "off",
         "noEmptyBlock": "warn",
         "noEmptyBlockStatements": "warn",
         "useAwait": "warn"

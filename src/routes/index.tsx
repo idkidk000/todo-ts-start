@@ -1,59 +1,45 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
-import { eq } from 'drizzle-orm';
 import { useRef } from 'react';
 import { Card } from '@/components/card';
-import { db } from '@/lib/drizzle';
-import { todoTable } from '@/lib/drizzle/schema';
-
-const getTodosFn = createServerFn({
-  method: 'GET',
-}).handler(async () => await db.select().from(todoTable));
-
-const setTodoDoneFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: number; done: boolean }) => data)
-  .handler(async ({ data: { id, done } }) => {
-    await db.update(todoTable).set({ done }).where(eq(todoTable.id, id));
-  });
-
-const createTodoFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string }) => data)
-  .handler(async ({ data: { name } }) => {
-    await db.insert(todoTable).values({ name });
-  });
-
-const deleteTodoFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: number }) => data)
-  .handler(async ({ data: { id } }) => {
-    await db.delete(todoTable).where(eq(todoTable.id, id));
-  });
+import { todoDeleteFn, todoInsertFn, todosGetFn, todoUpdateFn } from '@/server-functions/todo';
 
 export const Route = createFileRoute('/')({
   component: Home,
-  loader: async () => await getTodosFn(),
+  loader: async () => await todosGetFn(),
 });
 
 function Home() {
   const router = useRouter();
   const todos = Route.useLoaderData();
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const doneCheckboxRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <div className='flex flex-col gap-4 p-4'>
-      <h1>Todos</h1>
+      <h1 className='sticky top-0 -mt-4 -mx-4 p-4 bg-background shadow-lg'>Todos</h1>
       <Card title='Create new'>
         <div className='flex flex-wrap gap-4 items-center'>
           <label className='flex gap-2 items-center'>
             Name
             <input type='text' placeholder='Name' ref={nameInputRef} />
           </label>
+          <label className='flex gap-2 items-center'>
+            Done
+            <input type='checkbox' placeholder='Name' ref={doneCheckboxRef} />
+          </label>
           <button
             type='button'
             onClick={() => {
-              if (!nameInputRef.current) return;
-              createTodoFn({ data: { name: nameInputRef.current.value } }).then(() => {
+              if (!nameInputRef.current || !doneCheckboxRef.current) return;
+              todoInsertFn({
+                data: {
+                  name: nameInputRef.current.value,
+                  done: doneCheckboxRef.current.checked,
+                },
+              }).then(() => {
                 router.invalidate();
                 if (nameInputRef.current) nameInputRef.current.value = '';
+                if (doneCheckboxRef.current) doneCheckboxRef.current.checked = false;
               });
             }}
           >
@@ -80,7 +66,7 @@ function Home() {
               <button
                 type='button'
                 onClick={() => {
-                  setTodoDoneFn({ data: { id: todo.id, done: !todo.done } }).then(() => router.invalidate());
+                  todoUpdateFn({ data: { id: todo.id, done: !todo.done } }).then(() => router.invalidate());
                 }}
               >
                 Toggle
@@ -88,7 +74,7 @@ function Home() {
               <button
                 type='button'
                 onClick={() => {
-                  deleteTodoFn({ data: { id: todo.id } }).then(() => router.invalidate());
+                  todoDeleteFn({ data: { id: todo.id } }).then(() => router.invalidate());
                 }}
               >
                 Delete
