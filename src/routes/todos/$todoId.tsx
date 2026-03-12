@@ -1,0 +1,14 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { TodoCard } from '@/components/todo-card';
+import { todoWithCompletedAtSelect } from '@/server-functions';
+
+export const Route = createFileRoute('/todos/$todoId')({
+  component: RouteComponent,
+  loader: async ({ params: { todoId } }) => await todoWithCompletedAtSelect({ data: [parseInt(todoId, 10)] }),
+});
+
+function RouteComponent() {
+  const [todo] = Route.useLoaderData();
+  console.log(todo);
+  return <TodoCard {...todo} />;
+}

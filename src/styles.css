@@ -10,6 +10,10 @@
   --color-dark: var(--color-gray-950);
   --color-foreground: light-dark(var(--color-dark), var(--color-light));
   --color-background: light-dark(var(--color-light), var(--color-dark));
+  --color-primary: var(--color-violet-500);
+  --color-danger: var(--color-rose-500);
+  --color-warning: var(--color-amber-500);
+  --color-success: var(--color-emerald-500);
 }
 
 @layer base {
@@ -22,11 +26,7 @@
   h2 {
     @apply text-xl font-medium;
   }
-  input,
-  button {
+  input {
     @apply border border-foreground/35 rounded-md px-4 py-1;
-  }
-  button {
-    @apply bg-foreground/20 hover:bg-foreground/10 active:bg-transparent focus-visible:bg-transparent transition-colors;
   }
 }
