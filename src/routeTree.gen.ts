@@ -9,48 +9,71 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TodosTodoIdRouteImport } from './routes/todos/$todoId'
+import { Route as AuthedTodosIndexRouteImport } from './routes/_authed/todos/index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TodosTodoIdRoute = TodosTodoIdRouteImport.update({
-  id: '/todos/$todoId',
-  path: '/todos/$todoId',
+const AuthedTodosIndexRoute = AuthedTodosIndexRouteImport.update({
+  id: '/todos/',
+  path: '/todos/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/todos/$todoId': typeof TodosTodoIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/todos/': typeof AuthedTodosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/todos/$todoId': typeof TodosTodoIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/todos': typeof AuthedTodosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/todos/$todoId': typeof TodosTodoIdRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_authed/todos/': typeof AuthedTodosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/todos/$todoId'
+  fullPaths: '/' | '/api/auth/$' | '/todos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/todos/$todoId'
-  id: '__root__' | '/' | '/todos/$todoId'
+  to: '/' | '/api/auth/$' | '/todos'
+  id: '__root__' | '/' | '/_authed' | '/api/auth/$' | '/_authed/todos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TodosTodoIdRoute: typeof TodosTodoIdRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -58,19 +81,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/todos/$todoId': {
-      id: '/todos/$todoId'
-      path: '/todos/$todoId'
-      fullPath: '/todos/$todoId'
-      preLoaderRoute: typeof TodosTodoIdRouteImport
+    '/_authed/todos/': {
+      id: '/_authed/todos/'
+      path: '/todos'
+      fullPath: '/todos/'
+      preLoaderRoute: typeof AuthedTodosIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface AuthedRouteChildren {
+  AuthedTodosIndexRoute: typeof AuthedTodosIndexRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedTodosIndexRoute: AuthedTodosIndexRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TodosTodoIdRoute: TodosTodoIdRoute,
+  AuthedRoute: AuthedRouteWithChildren,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/libsql';
-import * as schema from '@/lib/drizzle/schema';
+import * as schema from '@/lib/drizzle.server/schema';
 
 const LOG_QUERIES = false;
 

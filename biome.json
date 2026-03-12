@@ -51,7 +51,13 @@
         "useExhaustiveDependencies": {
           "level": "warn",
           "options": {
-            "reportMissingDependenciesArray": true
+            "reportMissingDependenciesArray": true,
+            "hooks": [
+              {
+                "name": "useModal",
+                "stableResult": ["modalRef", "open", "close", "toggle"]
+              }
+            ]
           }
         }
       },

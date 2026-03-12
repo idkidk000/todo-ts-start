@@ -20,7 +20,8 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
   );
 
   const handleDeleteClick = useCallback(() => {
-    todoDelete({ data: { id: id } }).then(() => navigate({ to: '/' }));
+    //TODO: `to` should be a param or something a bit smarter
+    todoDelete({ data: { id: id } }).then(() => navigate({ to: '/todos' }));
   }, [id, navigate]);
 
   // FIXME: `Button`s generics are breaking `Link`s
@@ -65,7 +66,8 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
           <Button variant='danger' onClick={handleDeleteClick}>
             Delete
           </Button>
-          <Button as={Link} to='/todos/$todoId' params={linkParams}>
+          {/* TODO: this handle this on the todos page as a modal */}
+          <Button as={Link} to='/_authed/todos/$todoId' params={linkParams}>
             Edit
           </Button>
         </div>

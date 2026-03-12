@@ -43,6 +43,7 @@ export type Repeat = z.infer<typeof repeatSchema>;
 
 export const todoSchema = z.object({
   id: z.int().describe('Unique identifier'),
+  userId: z.string().describe('User identifier'),
   name: z.string().describe('Todo name'),
   done: z.boolean().describe('Is the todo done'),
   snoozed: z.boolean().describe('Is the todo snoozed'),

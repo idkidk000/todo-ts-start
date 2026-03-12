@@ -14,6 +14,10 @@
   --color-danger: var(--color-rose-500);
   --color-warning: var(--color-amber-500);
   --color-success: var(--color-emerald-500);
+  --color-primary-contrast: var(--color-violet-100);
+  --color-danger-contrast: var(--color-rose-100);
+  --color-warning-contrast: var(--color-amber-900);
+  --color-success-contrast: var(--color-emerald-100);
 }
 
 @layer base {

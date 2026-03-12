@@ -1,56 +1,65 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { useRef } from 'react';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { useCallback, useId, useRef } from 'react';
+import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import { TodoCard } from '@/components/todo-card';
-import { todoInsert, todoWithCompletedAtSelect } from '@/server-functions';
+import { getSession } from '@/lib/auth';
+import { authClient } from '@/lib/auth/client';
 
 export const Route = createFileRoute('/')({
   component: Home,
-  loader: async () => await todoWithCompletedAtSelect(),
+  beforeLoad: async () => {
+    const session = await getSession();
+    if (session) {
+      throw redirect({ to: '/todos' });
+    }
+  },
 });
 
-// TODO: Todo form component. use it for add/edit. add the new fields
+// TODO: this coulld definitely be an actual form
 function Home() {
-  const router = useRouter();
-  const todos = Route.useLoaderData();
-  const nameInputRef = useRef<HTMLInputElement | null>(null);
-  const doneCheckboxRef = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
+  const usernameId = useId();
+  const passwordId = useId();
+  const usernameRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const errorRef = useRef<HTMLSpanElement | null>(null);
+
+  // TODO: just use a form
+  const handleSubmitButton = useCallback(() => {
+    console.log('submit button');
+    authClient.signIn
+      .email({
+        email: usernameRef.current?.value ?? '',
+        password: passwordRef.current?.value ?? '',
+        rememberMe: true,
+      })
+      .then((response) => {
+        if (response.error) {
+          console.error('auth failed', response.error);
+          if (errorRef.current) errorRef.current.innerText = JSON.stringify(response.error);
+        } else {
+          console.log('auth successful');
+          navigate({ to: '/todos' });
+        }
+      });
+  }, [navigate]);
 
   return (
-    <>
-      <Card title='Create new'>
-        <div className='flex flex-wrap gap-4 items-center'>
-          <label className='flex gap-2 items-center'>
-            Name
-            <input type='text' placeholder='Name' ref={nameInputRef} />
-          </label>
-          <label className='flex gap-2 items-center'>
-            Done
-            <input type='checkbox' placeholder='Name' ref={doneCheckboxRef} />
-          </label>
-          <button
-            type='button'
-            onClick={() => {
-              if (!nameInputRef.current || !doneCheckboxRef.current) return;
-              todoInsert({
-                data: {
-                  name: nameInputRef.current.value,
-                  done: doneCheckboxRef.current.checked,
-                },
-              }).then(() => {
-                router.invalidate();
-                if (nameInputRef.current) nameInputRef.current.value = '';
-                if (doneCheckboxRef.current) doneCheckboxRef.current.checked = false;
-              });
-            }}
-          >
-            Create
-          </button>
+    <Card title='Log in'>
+      <div className='grid grid-cols-[auto_1fr] gap-4 items-center max-w-lg mx-auto'>
+        <div className='contents'>
+          <label htmlFor={usernameId}>Username or email</label>
+          <input type='text' id={usernameId} ref={usernameRef} name='email' />
         </div>
-      </Card>
-      {todos.map((todo) => (
-        <TodoCard key={todo.id} {...todo} />
-      ))}
-    </>
+        <div className='contents'>
+          <label htmlFor={passwordId}>Password</label>
+          <input type='password' id={passwordId} ref={passwordRef} name='password' />
+        </div>
+        <div className='col-span-full flex justify-center'>
+          <Button onClick={handleSubmitButton}>Login</Button>
+        </div>
+        <span className='col-span-full text-center text-danger' ref={errorRef} />
+      </div>
+    </Card>
   );
 }
