@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { getSessionOrThrow } from '@/lib/auth';
+import { getSessionOrThrow } from '@/lib/better-auth';
 
 // runs for everything under the virtual route /_authed
 // the actual urls do not contain /_authed

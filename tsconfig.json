@@ -24,7 +24,6 @@
     "**/*.tsx",
     "src/routes/_authed.tsx",
     "src/routes/api/auth/$.ts",
-    "src/routes/_authed/todos/{-$todoId}.tsx",
-    "src/routes/_authed/todos/$todoId.tsx.NO"
+    "src/routes/_authed/todos/{-$todoId}.tsx"
   ]
 }

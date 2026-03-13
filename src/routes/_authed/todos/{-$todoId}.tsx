@@ -7,7 +7,7 @@ import { Input } from '@/components/input';
 import { Modal, ModalContent, useModal } from '@/components/modal';
 import { TodoCard } from '@/components/todo-card';
 import type { TodoWithCompletedAt } from '@/lib/schemas';
-import { todoInsert, todoWithCompletedAtSelect } from '@/server-functions';
+import { todoInsert, todoWithCompletedAtSelect } from '@/lib/todos';
 
 export const Route = createFileRoute('/_authed/todos/{-$todoId}')({
   component: Dashboard,

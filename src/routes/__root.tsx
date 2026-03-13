@@ -4,24 +4,19 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-r
 import type { ReactNode } from 'react';
 import '@/styles.css';
 import { Nav } from '@/components/nav';
-import { AuthProvider } from '@/hooks/auth';
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'Todos',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Todos' },
     ],
   }),
   component: RootComponent,
+  notFoundComponent(props) {
+    console.error('not found', props);
+  },
 });
 
 function RootComponent() {
@@ -40,10 +35,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body>
         <div className='flex flex-col gap-4 p-4'>
-          <AuthProvider>
-            <Nav />
-            {children}
-          </AuthProvider>
+          <Nav />
+          {children}
         </div>
         <Scripts />
       </body>

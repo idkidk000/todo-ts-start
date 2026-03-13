@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth/server';
+import { signUpEmail } from '@/lib/better-auth/server';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable, userTable } from '@/lib/drizzle.server/schema';
 import 'dotenv/config';
@@ -26,9 +26,9 @@ async function createUser(
   username: string,
   password: string,
   admin: boolean
-): Promise<Awaited<ReturnType<typeof auth.api.signUpEmail>>['user']> {
+): Promise<Awaited<ReturnType<typeof signUpEmail>>['user']> {
   await db.delete(userTable).where(eq(userTable.email, email));
-  const { user } = await auth.api.signUpEmail({
+  const { user } = await signUpEmail({
     body: { email, name: lowerToSentenceCase(username), password, username },
   });
   if (admin) {

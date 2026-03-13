@@ -4,7 +4,7 @@ import { Badge } from '@/components/badge';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import type { TodoWithCompletedAt } from '@/lib/schemas';
-import { todoDelete, todoUpdate } from '@/server-functions';
+import { todoDelete, todoUpdate } from '@/lib/todos';
 
 export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snoozed, updatedAt }: TodoWithCompletedAt) {
   const router = useRouter();

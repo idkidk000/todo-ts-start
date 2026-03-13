@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { and, eq, getTableColumns, inArray, max } from 'drizzle-orm';
-import { getSessionOrThrow } from '@/lib/auth';
+import { getSessionOrThrow } from '@/lib/better-auth';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable } from '@/lib/drizzle.server/schema';
 import { MessageClient } from '@/lib/messaging.server';
@@ -16,10 +16,8 @@ import {
   todoUpdateParamsSchema,
 } from '@/lib/schemas';
 
+// the exported functions can be bundled for the client or server but the message client is kept server only since it comes from a .server module
 const messageClient = new MessageClient(import.meta.url);
-
-// DO NOT TYPE THE RETURNS OF THESE OR TANSTACK BREAKS AND GIVES VERY UNHELPFUL ERRORS
-// it *looks like* they (along with drizzle) end up in the client bundle when this happens. which obviously doesn't work
 
 export const todoSelect = createServerFn({ method: 'GET' })
   .inputValidator((data) => todoSelectParamsSchema.parse(data))
@@ -47,6 +45,7 @@ export const todoWithCompletedAtSelect = createServerFn({ method: 'GET' })
       .groupBy(todoTable.id);
     return result;
   });
+
 /*
   TODO: get todos with history. history should be an array under each todo
   probably needs json_group_array. see:

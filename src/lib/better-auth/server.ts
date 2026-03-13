@@ -6,10 +6,24 @@ import { admin, username } from 'better-auth/plugins';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import { db } from '@/lib/drizzle.server';
 
+// BUG: server bundle is not reading .env
+// attempted workarounds below didn't work
+
+// import 'dotenv/config'
+// import {env} from 'node:process'
+
+// const baseURL = env.BETTER_AUTH_URL
+// const secret=env.BETTER_AUTH_SECRET
+
 // https://better-auth.com/docs/installation
 // https://better-auth.com/docs/plugins/api-key
 
-export const auth = betterAuth({
+export const {
+  handler,
+  api: { signUpEmail, getSession },
+} = betterAuth({
+  // baseURL,
+  // secret,
   appName: name,
   database: drizzleAdapter(db, { provider: 'sqlite' }),
   emailAndPassword: { enabled: true },

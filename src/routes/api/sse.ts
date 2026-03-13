@@ -1,13 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { auth } from '@/lib/auth/server';
+import { getSession } from '@/lib/better-auth/server';
 import { MessageClient } from '@/lib/messaging.server';
 import { omit } from '@/lib/utils';
 
 // https://tanstack.com/start/latest/docs/framework/react/guide/server-routes
 
+// TODO: periodically revalidate auth
 interface AuthenticatedStream {
   controller: ReadableStreamDefaultController<unknown>;
-  session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
+  session: NonNullable<Awaited<ReturnType<typeof getSession>>>;
+  headers: Headers;
+  validatedAt: number;
 }
 
 const streams = new Set<AuthenticatedStream>();
@@ -33,7 +36,7 @@ export const Route = createFileRoute('/api/sse')({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         console.log('sse get', request);
-        const session = await auth.api.getSession({ headers: request.headers });
+        const session = await getSession({ headers: request.headers });
         if (!session?.user)
           return new Response(JSON.stringify({ ok: false, error: 'auth failed' }), {
             status: 401,
@@ -46,6 +49,8 @@ export const Route = createFileRoute('/api/sse')({
               const stream: AuthenticatedStream = {
                 controller: streamController,
                 session,
+                headers: request.headers,
+                validatedAt: Date.now(),
               };
               streams.add(stream);
               abortController.signal.addEventListener('abort', () => streams.delete(stream));
