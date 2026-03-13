@@ -8,6 +8,7 @@
 @theme inline {
   --color-light: var(--color-gray-50);
   --color-dark: var(--color-gray-950);
+  --color-muted: var(--color-gray-500);
   --color-foreground: light-dark(var(--color-dark), var(--color-light));
   --color-background: light-dark(var(--color-light), var(--color-dark));
   --color-primary: var(--color-violet-500);

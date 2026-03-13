@@ -14,6 +14,11 @@ export const userTable = sqliteTable('user', {
   // https://better-auth.com/docs/plugins/username#schema
   username: text().notNull(),
   displayUsername: text().notNull(),
+  // https://better-auth.com/docs/plugins/admin#schema
+  role: text(),
+  banned: int(),
+  banReason: text(),
+  banExpires: int({ mode: 'timestamp_ms' }),
   createdAt: int({ mode: 'timestamp_ms' }).notNull(),
   updatedAt: int({ mode: 'timestamp_ms' }).notNull(),
 });
@@ -27,6 +32,8 @@ export const sessionTable = sqliteTable('session', {
   expiresAt: int({ mode: 'timestamp_ms' }).notNull(),
   ipAddress: text(),
   userAgent: text(),
+  // https://better-auth.com/docs/plugins/admin#schema
+  impersonatedBy: text(),
   createdAt: int({ mode: 'timestamp_ms' }).notNull(),
   updatedAt: int({ mode: 'timestamp_ms' }).notNull(),
 });
@@ -90,7 +97,7 @@ export const todoTable = sqliteTable('todo', {
   id: int().primaryKey({ autoIncrement: true }),
   userId: text()
     .notNull()
-    .references(() => userTable.id),
+    .references(() => userTable.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   name: text().notNull().unique(),
   done: int({ mode: 'boolean' }).notNull().default(false),
   snoozed: int({ mode: 'boolean' }).notNull().default(false),

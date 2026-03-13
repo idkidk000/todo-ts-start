@@ -33,21 +33,24 @@
   "license": "GPL-3.0-or-later",
   "main": "index.ts",
   "name": "todo",
+  "packageManager": "pnpm@10.29.3",
   "scripts": {
     "build": "vite build",
     "check": "tsgo --noEmit",
-    "start": "node .output/server/index.mjs",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "db:reset": "rm .local/data.db; pnpm db:migrate && pnpm db:seed",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
     "dev": "vite dev",
+    "env:generate": "tsx scripts/gen-env.ts",
     "format": "biome format --write; killall -9 biome",
     "format:full": "biome check --write; killall -9 biome",
+    "init": "mkdir .local; pnpm env:generate && pnpm db:push --force && pnpm db:seed",
     "lint": "biome lint --reporter=summary",
-    "lint:full": "biome lint"
+    "lint:full": "biome lint",
+    "start": "node .output/server/index.mjs"
   },
   "type": "module",
   "version": "1.0.0"

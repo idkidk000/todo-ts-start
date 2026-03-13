@@ -4,6 +4,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-r
 import type { ReactNode } from 'react';
 import '@/styles.css';
 import { Nav } from '@/components/nav';
+import { AuthProvider } from '@/hooks/auth';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -39,8 +40,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body>
         <div className='flex flex-col gap-4 p-4'>
-          <Nav />
-          {children}
+          <AuthProvider>
+            <Nav />
+            {children}
+          </AuthProvider>
         </div>
         <Scripts />
       </body>

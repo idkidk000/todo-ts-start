@@ -1,21 +1,37 @@
 import type { ComponentProps, ComponentPropsWithoutRef, ElementType, RefObject } from 'react';
 import { cn } from '@/lib/utils';
 
-const base =
-  'rounded-md shadow-md transition-colors border-2 inline-flex gap-1 items-center font-semibold justify-center';
+const core = 'transition-colors inline-flex gap-1 items-center font-semibold justify-center cursor-pointer';
+
+const base = 'rounded-md shadow-md border-2';
 
 const variants = {
-  primary:
+  primary: [
+    core,
+    base,
     'border-transparent bg-primary hover:bg-primary/75 active:bg-primary/50 disabled:bg-primary/25 disabled:text-dark/75 text-primary-contrast',
-  danger:
+  ],
+  danger: [
+    core,
+    base,
     'border-transparent bg-danger hover:bg-danger/75 active:bg-danger/50 disabled:bg-danger/25 disabled:text-dark/75 text-danger-contrast',
-  warning:
+  ],
+  warning: [
+    core,
+    base,
     'border-transparent bg-warning hover:bg-warning/75 active:bg-warning/50 disabled:bg-warning/25 disabled:text-dark/75 text-warning-contrast',
-  success:
+  ],
+  success: [
+    core,
+    base,
     'border-transparent bg-success hover:bg-success/75 active:bg-success/50 disabled:bg-success/25 disabled:text-dark/75 text-success-contrast',
-  muted:
+  ],
+  muted: [
+    core,
+    base,
     'border-foreground/10 bg-background-card hover:bg-background-card/75 active:bg-background-card/50 disabled:bg-background-card/25 disabled:text-foreground/75 text-foreground',
-  ghost: 'border-foreground/10',
+  ],
+  ghost: [core],
 } as const;
 
 export type ButtonVariant = keyof typeof variants;
@@ -44,7 +60,7 @@ export function Button<T extends ElementType = 'button'>({
 }) {
   const Component = as ?? 'button';
   return (
-    <Component type='button' className={cn(base, sizes[size], variants[variant], className)} {...props}>
+    <Component type='button' className={cn(sizes[size], variants[variant], className)} {...props}>
       {children}
     </Component>
   );

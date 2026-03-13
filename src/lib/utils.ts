@@ -123,6 +123,14 @@ export function camelToTitleCase(value: string): string {
     .join(' ');
 }
 
+export function lowerToTitleCase(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter((token) => token.length)
+    .map((token) => `${token[0].toLocaleUpperCase()}${token.slice(1)}`)
+    .join(' ');
+}
+
 export interface ErrorLike {
   name: string;
   message: string;

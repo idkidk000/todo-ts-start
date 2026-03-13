@@ -1,13 +1,16 @@
-// routes/_authed.tsx - Layout route for protected pages
-
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { getSession } from '@/lib/auth';
+import { getSessionOrThrow } from '@/lib/auth';
 
+// runs for everything under the virtual route /_authed
+// the actual urls do not contain /_authed
 export const Route = createFileRoute('/_authed')({
   beforeLoad: async () => {
-    const session = await getSession();
-    console.log('_authed', session);
-    if (!session.data) throw redirect({ to: '/' });
-    return { user: session.data.user, session: session.data.session };
+    try {
+      const session = await getSessionOrThrow();
+      console.info('authed', session);
+    } catch (error) {
+      console.error('not authed', error);
+      throw redirect({ to: '/' });
+    }
   },
 });

@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useRef } from 'react';
+import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { TodoCard } from '@/components/todo-card';
 import { todoInsert, todoWithCompletedAtSelect } from '@/server-functions';
@@ -30,8 +31,7 @@ function Dashboard() {
             Done
             <input type='checkbox' placeholder='Name' ref={doneCheckboxRef} />
           </label>
-          <button
-            type='button'
+          <Button
             onClick={() => {
               if (!nameInputRef.current || !doneCheckboxRef.current) return;
               todoInsert({
@@ -47,7 +47,7 @@ function Dashboard() {
             }}
           >
             Create
-          </button>
+          </Button>
         </div>
       </Card>
       {todos.map((todo) => (
