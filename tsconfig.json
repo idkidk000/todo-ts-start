@@ -22,13 +22,9 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "**/*.mts",
-    "postcss.config.mjs",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
     "src/routes/_authed.tsx",
     "src/routes/api/auth/$.ts",
-    "src/routes/_authed/todos/index.tsx",
+    "src/routes/_authed/todos/{-$todoId}.tsx",
     "src/routes/_authed/todos/$todoId.tsx.NO"
   ]
 }

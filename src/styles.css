@@ -8,9 +8,10 @@
 @theme inline {
   --color-light: var(--color-gray-50);
   --color-dark: var(--color-gray-950);
-  --color-muted: var(--color-gray-500);
   --color-foreground: light-dark(var(--color-dark), var(--color-light));
   --color-background: light-dark(var(--color-light), var(--color-dark));
+  --color-muted: light-dark(var(--color-gray-500), var(--color-gray-400));
+  --color-border: light-dark(hsl(from var(--color-dark) h s l / 20%), hsl(from var(--color-light) h s l / 40%));
   --color-primary: var(--color-violet-500);
   --color-danger: var(--color-rose-500);
   --color-warning: var(--color-amber-500);
@@ -23,15 +24,12 @@
 
 @layer base {
   html {
-    @apply bg-background text-foreground transition-colors;
+    @apply bg-background text-foreground transition-colors accent-primary selection:bg-primary/33;
   }
   h1 {
     @apply text-2xl font-semibold;
   }
   h2 {
     @apply text-xl font-medium;
-  }
-  input {
-    @apply border border-foreground/35 rounded-md px-4 py-1;
   }
 }

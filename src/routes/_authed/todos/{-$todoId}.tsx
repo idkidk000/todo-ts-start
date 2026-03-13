@@ -1,13 +1,15 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { useRef } from 'react';
+/** biome-ignore-all lint/a11y/noLabelWithoutControl: biome bug */
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { Input } from '@/components/input';
+import { Modal, ModalContent, useModal } from '@/components/modal';
 import { TodoCard } from '@/components/todo-card';
+import type { TodoWithCompletedAt } from '@/lib/schemas';
 import { todoInsert, todoWithCompletedAtSelect } from '@/server-functions';
 
-// TODO: `session` should be available https://tanstack.com/start/latest/docs/framework/react/guide/authentication#4-route-protection
-
-export const Route = createFileRoute('/_authed/todos/')({
+export const Route = createFileRoute('/_authed/todos/{-$todoId}')({
   component: Dashboard,
   loader: async () => await todoWithCompletedAtSelect(),
 });
@@ -18,6 +20,13 @@ function Dashboard() {
   const todos = Route.useLoaderData();
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const doneCheckboxRef = useRef<HTMLInputElement | null>(null);
+  const { todoId } = Route.useParams();
+
+  const modalTodo = useMemo(() => {
+    if (!todoId) return;
+    const todoIdInt = parseInt(todoId, 10);
+    return todos.find((item) => item.id === todoIdInt);
+  }, [todos, todoId]);
 
   return (
     <>
@@ -25,11 +34,11 @@ function Dashboard() {
         <div className='flex flex-wrap gap-4 items-center'>
           <label className='flex gap-2 items-center'>
             Name
-            <input type='text' placeholder='Name' ref={nameInputRef} />
+            <Input type='text' placeholder='Name' ref={nameInputRef} />
           </label>
           <label className='flex gap-2 items-center'>
             Done
-            <input type='checkbox' placeholder='Name' ref={doneCheckboxRef} />
+            <Input type='checkbox' placeholder='Name' ref={doneCheckboxRef} />
           </label>
           <Button
             onClick={() => {
@@ -53,6 +62,25 @@ function Dashboard() {
       {todos.map((todo) => (
         <TodoCard key={todo.id} {...todo} />
       ))}
+      <Modal>
+        <TodoModal todo={modalTodo} />
+      </Modal>
     </>
   );
+}
+
+function TodoModal({ todo }: { todo: TodoWithCompletedAt | undefined }) {
+  const { open } = useModal();
+  const navigate = useNavigate();
+
+  const handleClose = useCallback(() => {
+    console.log('modal close');
+    navigate({ to: '/todos/{-$todoId}', params: { todoId: undefined } });
+  }, [navigate]);
+
+  useEffect(() => {
+    if (todo) open();
+  }, [todo]);
+
+  return <ModalContent onClose={handleClose}>{todo ? <TodoCard {...todo} /> : null}</ModalContent>;
 }

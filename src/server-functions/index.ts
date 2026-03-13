@@ -3,6 +3,7 @@ import { and, eq, getTableColumns, inArray, max } from 'drizzle-orm';
 import { getSessionOrThrow } from '@/lib/auth';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable } from '@/lib/drizzle.server/schema';
+import { MessageClient } from '@/lib/messaging.server';
 import {
   type Todo,
   type TodoDeleteParams,
@@ -15,7 +16,9 @@ import {
   todoUpdateParamsSchema,
 } from '@/lib/schemas';
 
-// DO NOT TYPE THESE OR TANSTACK BREAKS AND GIVES VERY UNHELPFUL ERRORS
+const messageClient = new MessageClient(import.meta.url);
+
+// DO NOT TYPE THE RETURNS OF THESE OR TANSTACK BREAKS AND GIVES VERY UNHELPFUL ERRORS
 // it *looks like* they (along with drizzle) end up in the client bundle when this happens. which obviously doesn't work
 
 export const todoSelect = createServerFn({ method: 'GET' })
@@ -60,6 +63,7 @@ export const todoUpdate = createServerFn({ method: 'POST' })
       .set(rest)
       .where(and(eq(todoTable.userId, user.id), eq(todoTable.id, id)));
     if ('done' in rest && rest.done) await db.insert(historyTable).values({ todoId: id });
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
   });
 
 export const todoInsert = createServerFn({ method: 'POST' })
@@ -71,6 +75,7 @@ export const todoInsert = createServerFn({ method: 'POST' })
       .values({ ...data, userId: user.id })
       .returning();
     if ('done' in data && data.done) await db.insert(historyTable).values({ todoId: id });
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
   });
 
 export const todoDelete = createServerFn({ method: 'POST' })
@@ -78,4 +83,5 @@ export const todoDelete = createServerFn({ method: 'POST' })
   .handler(async ({ data: { id } }) => {
     const { user } = await getSessionOrThrow();
     await db.delete(todoTable).where(and(eq(todoTable.userId, user.id), eq(todoTable.id, id)));
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
   });

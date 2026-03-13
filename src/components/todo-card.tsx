@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
+import { Badge } from '@/components/badge';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import type { TodoWithCompletedAt } from '@/lib/schemas';
@@ -20,8 +21,7 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
   );
 
   const handleDeleteClick = useCallback(() => {
-    //TODO: `to` should be a param or something a bit smarter
-    todoDelete({ data: { id: id } }).then(() => navigate({ to: '/todos' }));
+    todoDelete({ data: { id: id } }).then(() => navigate({ to: '/todos/{-$todoId}', params: { todoId: undefined } }));
   }, [id, navigate]);
 
   // FIXME: `Button`s generics are breaking `Link`s
@@ -32,9 +32,9 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
       <div className='grid grid-cols-[auto_1fr] gap-2'>
         <div className='contents'>
           <span>State</span>
-          <span className={done ? 'text-emerald-500' : snoozed ? 'text-amber-500' : 'text-rose-500'}>
+          <Badge variant={done ? 'success' : snoozed ? 'warning' : 'danger'} className='me-auto' size='sm'>
             {done ? 'Done' : snoozed ? 'Snoozed' : 'Due'}
-          </span>
+          </Badge>
         </div>
         <div className='contents'>
           <span>Done</span>
@@ -60,14 +60,13 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
           <span>Completed</span>
           <span>{completedAt?.toISOString() ?? 'never'}</span>
         </div>
-        <div className='col-span-2 flex justify-around'>
+        <div className='col-span-2 flex justify-around gap-2'>
           <Button onClick={handleDoneClick}>Toggle Done</Button>
           <Button onClick={handleSnoozedClick}>Toggle Snoozed</Button>
           <Button variant='danger' onClick={handleDeleteClick}>
             Delete
           </Button>
-          {/* TODO: this handle this on the todos page as a modal */}
-          <Button as={Link} to='/_authed/todos/$todoId' params={linkParams}>
+          <Button as={Link} to='/todos/$todoId' params={linkParams}>
             Edit
           </Button>
         </div>

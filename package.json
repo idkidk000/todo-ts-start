@@ -8,6 +8,7 @@
     "better-auth": "^1.5.5",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
+    "lucide-react": "^0.577.0",
     "node-schedule": "^2.1.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

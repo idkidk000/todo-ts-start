@@ -1,10 +1,12 @@
+/** biome-ignore-all lint/a11y/noLabelWithoutControl: biome bug */
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { type SubmitEvent, useCallback, useState } from 'react';
 import z from 'zod';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { Input } from '@/components/input';
+import { useAuth } from '@/hooks/auth';
 import { getSessionOrThrow } from '@/lib/auth';
-import { authClient } from '@/lib/auth/client';
 
 const schema = z.object({
   email: z.string().min(1),
@@ -21,13 +23,14 @@ export const Route = createFileRoute('/')({
     } catch {
       return;
     }
-    throw redirect({ to: '/todos' });
+    throw redirect({ to: '/todos/{-$todoId}', params: { todoId: undefined } });
   },
 });
 
 function Home() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth();
 
   const handleSubmit = useCallback(
     (event: SubmitEvent<HTMLFormElement>) => {
@@ -40,33 +43,33 @@ function Home() {
         console.error('validation failed', parsed.error);
         setError(parsed.error.message);
       } else
-        authClient.signIn.email({ ...parsed.data }).then((response) => {
+        signIn({ ...parsed.data }).then((response) => {
           if (response.error) {
             console.error('auth failed', response.error);
-            setError(response.error.message ?? response.error.statusText);
+            setError(response.error);
           } else {
             console.log('auth successful');
-            navigate({ to: '/todos' });
+            navigate({ to: '/todos/{-$todoId}', params: { todoId: undefined } });
           }
         });
     },
-    [navigate]
+    [navigate, signIn]
   );
 
   return (
-    <Card title='Log in'>
-      <form className='grid grid-cols-[auto_1fr] gap-4 items-center max-w-lg mx-auto' onSubmit={handleSubmit}>
+    <Card title='Log in' className='max-w-lg mx-auto'>
+      <form className='grid grid-cols-[auto_1fr] gap-4 items-center mx-auto' onSubmit={handleSubmit}>
         <label className='contents'>
           Email
-          <input type='text' name='email' required />
+          <Input type='text' name='email' required />
         </label>
         <label className='contents'>
           Password
-          <input type='password' name='password' required />
+          <Input type='password' name='password' required />
         </label>
         <label className='contents'>
           Remember me
-          <input type='checkbox' name='rememberMe' className='me-auto' />
+          <Input type='checkbox' name='rememberMe' className='me-auto' />
         </label>
         {error && <span className='col-span-full text-center text-danger'>{error}</span>}
         <Button className='col-start-2 me-auto' type='submit'>

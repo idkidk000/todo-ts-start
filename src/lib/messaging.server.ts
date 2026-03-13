@@ -7,7 +7,7 @@ const SOCKET_PATH = '.message-bus.sock';
 const CONNECT_RETRY_MS = 100;
 const MAX_CONNECT_RETRIES = 10;
 
-// TODO: make this generic and break it out into a seperate project which can be included as a package or submodule
+// TODO: make this generic and break it out into a separate project which can be included as a package or submodule
 
 type Message =
   | {
@@ -78,7 +78,7 @@ export class MessageServer {
         }
 
         default:
-          console.warn('unhandled message kind', parsed);
+          console.warn('server - unhandled message kind', parsed);
       }
     });
   });
@@ -101,7 +101,6 @@ export class MessageServer {
   stop(): void {
     for (const clients of this.#topicClients.values()) for (const client of clients) client.destroy();
     this.#server.close(() => {
-      this.#cleanup();
       console.log('message server stopped');
     });
   }
@@ -114,11 +113,13 @@ export class MessageClient {
 
   #sendInternal(...messages: ClientToServerMessage[]): void {
     if (!this.#socket) {
+      console.log('queuing', ...messages);
       if (messages.length) this.#queue.push(...messages);
       return;
     } else {
-      const allMessages = [...this.#queue.splice(0, this.#queue.length), ...(messages ? [messages] : [])];
+      const allMessages: ClientToServerMessage[] = [...this.#queue.splice(0, this.#queue.length), ...messages];
       if (!allMessages.length) return;
+      console.log('sending', allMessages);
       this.#socket.write(allMessages.map((message) => `${SuperJSON.stringify(message)}\n`).join(''));
     }
   }
@@ -145,18 +146,14 @@ export class MessageClient {
         const readline = createInterface(socket);
         readline.addListener('error', console.error);
         readline.addListener('line', (data) => {
-          const parsed: ClientToServerMessage = SuperJSON.parse(data);
-          switch (parsed.kind) {
-            case 'message': {
-              for (const callback of this.#topicCallbacks?.get(parsed.message.topic) ?? []) callback(parsed.message);
-              break;
-            }
-            default:
-              console.warn('unhandled message kind', parsed);
-          }
+          const parsed: Message = SuperJSON.parse(data);
+          console.log('received', parsed);
+          for (const callback of this.#topicCallbacks?.get(parsed.topic) ?? []) callback(parsed);
         });
         this.#sendInternal();
       });
+
+      socket.connect(SOCKET_PATH);
     }, CONNECT_RETRY_MS);
   }
 

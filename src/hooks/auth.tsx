@@ -1,23 +1,62 @@
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { getSessionOrThrow } from '@/lib/auth';
+import { authClient } from '@/lib/auth/client';
 
-type Context = Awaited<ReturnType<typeof getSessionOrThrow>> | null;
-const Context = createContext<Context>(null);
+type Context = {
+  user: Awaited<ReturnType<typeof getSessionOrThrow>>['user'] | null;
+  session: Awaited<ReturnType<typeof getSessionOrThrow>>['session'] | null;
+  signIn: (param: { email: string; password: string; rememberMe: boolean }) => Promise<{ error?: string }>;
+  signOut: () => Promise<void>;
+};
+const Context = createContext<Context | null>(null);
 
-// BUG: this requires a page reload to update since we don't have any auth events to respond to
-// probably should expose sign in/out here and not use lib/auth directly anywhere else
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, setAuth] = useState<Context | null>(null);
-  useEffect(() => {
-    getSessionOrThrow()
-      .then((session) => setAuth(session))
-      .catch((error) => console.error('error in auth context', error));
-  }, []);
+  const [auth, setAuth] = useState<Pick<Context, 'user' | 'session'>>({ session: null, user: null });
+  const navigate = useNavigate();
 
-  return <Context value={auth}>{children}</Context>;
+  const updateAuth = useCallback(
+    () =>
+      getSessionOrThrow()
+        .then((session) => {
+          setAuth(session);
+          return true;
+        })
+        .catch((error) => {
+          console.error('error in auth context', String(error));
+          setAuth({ session: null, user: null });
+          return false;
+        }),
+    []
+  );
+
+  useEffect(() => {
+    updateAuth();
+  }, [updateAuth]);
+
+  const value: Context = useMemo(
+    () => ({
+      ...auth,
+      async signIn(param) {
+        // TODO: return type doesn't include session. but maybe i don't need it anyway?
+        const result = await authClient.signIn.email(param);
+        if (result.data?.user && (await updateAuth())) return {};
+        return { error: result.error?.message ?? result.error?.statusText ?? 'Unknown error' };
+      },
+      async signOut() {
+        await authClient.signOut();
+        setAuth({ session: null, user: null });
+        navigate({ to: '/' });
+      },
+    }),
+    [auth, updateAuth, navigate]
+  );
+
+  return <Context value={value}>{children}</Context>;
 }
 
 export function useAuth(): Context {
   const context = useContext(Context);
+  if (!context) throw new Error('useAuth must be used underneath an AuthProvider');
   return context;
 }
