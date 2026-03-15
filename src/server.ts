@@ -39,7 +39,7 @@ process.addListener('SIGTERM', stopWorkersAndShutdown);
 // cleanup old instance during hmr in dev
 if (import.meta.hot) {
   import.meta.hot.on('vite:beforeFullReload', () => {
-    console.log('caught hmr');
+    console.log('server hmr stop workers');
     process.removeListener('SIGINT', stopWorkersAndShutdown);
     process.removeListener('SIGTERM', stopWorkersAndShutdown);
     stopWorkers();

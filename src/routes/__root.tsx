@@ -3,7 +3,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import '@/styles.css';
-import { Nav } from '@/components/nav';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -34,10 +33,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body>
-        <div className='flex flex-col gap-4 p-4'>
-          <Nav />
-          {children}
-        </div>
+        <div className='flex flex-col gap-4 p-4'>{children}</div>
         <Scripts />
       </body>
     </html>

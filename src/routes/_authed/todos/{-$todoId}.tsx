@@ -6,18 +6,18 @@ import { Card } from '@/components/card';
 import { Input } from '@/components/input';
 import { Modal, ModalContent, useModal } from '@/components/modal';
 import { TodoCard } from '@/components/todo-card';
+import { useData } from '@/hooks/data';
 import type { TodoWithCompletedAt } from '@/lib/schemas';
-import { todoInsert, todoWithCompletedAtSelect } from '@/lib/todos';
+import { todoInsert } from '@/lib/todos';
 
 export const Route = createFileRoute('/_authed/todos/{-$todoId}')({
   component: Dashboard,
-  loader: async () => await todoWithCompletedAtSelect(),
 });
 
 // TODO: Todo form component. use it for add/edit. add the new fields
 function Dashboard() {
+  const { todos } = useData();
   const router = useRouter();
-  const todos = Route.useLoaderData();
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const doneCheckboxRef = useRef<HTMLInputElement | null>(null);
   const { todoId } = Route.useParams();
@@ -59,9 +59,11 @@ function Dashboard() {
           </Button>
         </div>
       </Card>
-      {todos.map((todo) => (
-        <TodoCard key={todo.id} {...todo} />
-      ))}
+      {todos
+        .toSorted((a, b) => a.name.localeCompare(b.name))
+        .map((todo) => (
+          <TodoCard key={todo.id} {...todo} />
+        ))}
       <Modal>
         <TodoModal todo={modalTodo} />
       </Modal>

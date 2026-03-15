@@ -59,7 +59,7 @@ export const todoInsertParamsSchema = todoSchema.pick({ name: true, done: true }
 export type TodoInsertParams = z.infer<typeof todoInsertParamsSchema>;
 
 export const todoUpdateParamsSchema = todoSchema
-  .omit({ createdAt: true, updatedAt: true })
+  .omit({ createdAt: true, updatedAt: true, userId: true })
   .partial()
   .required({ id: true });
 export type TodoUpdateParams = z.infer<typeof todoUpdateParamsSchema>;
