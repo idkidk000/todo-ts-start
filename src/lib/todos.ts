@@ -62,7 +62,7 @@ export const todoUpdate = createServerFn({ method: 'POST' })
       .set(rest)
       .where(and(eq(todoTable.userId, user.id), eq(todoTable.id, id)));
     if ('done' in rest && rest.done) await db.insert(historyTable).values({ todoId: id });
-    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id], userId: user.id });
   });
 
 export const todoInsert = createServerFn({ method: 'POST' })
@@ -74,7 +74,7 @@ export const todoInsert = createServerFn({ method: 'POST' })
       .values({ ...data, userId: user.id })
       .returning();
     if ('done' in data && data.done) await db.insert(historyTable).values({ todoId: id });
-    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id], userId: user.id });
   });
 
 export const todoDelete = createServerFn({ method: 'POST' })
@@ -82,5 +82,5 @@ export const todoDelete = createServerFn({ method: 'POST' })
   .handler(async ({ data: { id } }) => {
     const { user } = await getSessionOrThrow();
     await db.delete(todoTable).where(and(eq(todoTable.userId, user.id), eq(todoTable.id, id)));
-    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id] });
+    messageClient.send({ topic: 'invalidate', kind: 'todo', ids: [id], userId: user.id });
   });

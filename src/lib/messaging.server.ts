@@ -14,11 +14,13 @@ type Message =
       topic: 'invalidate';
       kind: 'todo' | 'history';
       ids: number[];
+      userId: string;
     }
   | {
       topic: 'method';
       kind: 'schedule';
       ids: number[];
+      userId: string;
     };
 
 type MessageTopic = Message['topic'];

@@ -2,17 +2,10 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { type SubmitEvent, useCallback, useState } from 'react';
 import z from 'zod';
-import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import { Input } from '@/components/input';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { signIn } from '@/lib/better-auth/client';
-
-const schema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
-  rememberMe: z.stringbool().optional().default(false),
-});
+import { makeZodValidator, useAppForm } from '@/lib/form';
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -27,53 +20,58 @@ export const Route = createFileRoute('/')({
   },
 });
 
+const schema = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+  rememberMe: z.union([z.stringbool(), z.boolean()]).default(false).describe('Remember this device?'),
+});
+
+const validator = makeZodValidator(schema);
+
 function Home() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const form = useAppForm({
+    validators: {
+      onBlur: validator,
+      onSubmit: validator,
+    },
+    defaultValues: {
+      password: '',
+      rememberMe: false,
+      username: '',
+    } satisfies z.infer<typeof schema>,
+    onSubmit({ value }) {
+      signIn.username(value).then((response) => {
+        if (response.error) {
+          console.error('auth failed', response.error);
+          setError(response.error.message ?? response.error.statusText);
+        } else {
+          console.log('auth successful');
+          navigate({ to: '/todos/{-$todoId}', params: { todoId: undefined } });
+        }
+      });
+    },
+  });
 
   const handleSubmit = useCallback(
     (event: SubmitEvent<HTMLFormElement>) => {
       event.preventDefault();
-      event.stopPropagation();
-      const formData = Object.fromEntries(new FormData(event.target).entries());
-      console.log('formData', formData);
-      const parsed = schema.safeParse(formData);
-      if (parsed.error) {
-        console.error('validation failed', parsed.error);
-        setError(parsed.error.message);
-      } else
-        signIn.username({ ...parsed.data }).then((response) => {
-          if (response.error) {
-            console.error('auth failed', response.error);
-            setError(response.error.message ?? response.error.statusText);
-          } else {
-            console.log('auth successful');
-            navigate({ to: '/todos/{-$todoId}', params: { todoId: undefined } });
-          }
-        });
+      form.handleSubmit();
     },
-    [navigate]
+    [form.handleSubmit]
   );
 
   return (
-    <Card title='Log in' className='max-w-lg mx-auto'>
+    <Card title='Log in' className='max-w-lg mx-auto md:my-auto w-dvw lg:w-lg'>
       <form className='grid grid-cols-[auto_1fr] gap-4 items-center mx-auto' onSubmit={handleSubmit}>
-        <label className='contents'>
-          Username
-          <Input type='text' name='username' required />
-        </label>
-        <label className='contents'>
-          Password
-          <Input type='password' name='password' required />
-        </label>
-        <label className='contents'>
-          Remember me
-          <Input type='checkbox' name='rememberMe' className='me-auto' />
-        </label>
+        <form.AppField name='username'>{(field) => <field.FormInput type='text' />}</form.AppField>
+        <form.AppField name='password'>{(field) => <field.FormInput type='password' />}</form.AppField>
+        <form.AppField name='rememberMe'>{(field) => <field.FormInput type='checkbox' />}</form.AppField>
         {error && <span className='col-span-full text-center text-danger'>{error}</span>}
-        <Button className='col-start-2 me-auto' type='submit'>
+        <form.Button className='col-span-full mx-auto' type='submit'>
           Log in
-        </Button>
+        </form.Button>
       </form>
     </Card>
   );

@@ -6,18 +6,18 @@ export const repeatSchema = z.discriminatedUnion('mode', [
   }),
   z.object({
     mode: z.literal('days').describe('Repeat every n days'),
-    count: z.int().min(1).describe('Days between occurences'),
+    count: z.int().min(1).describe('Days between occurrences'),
     fromDue: z.boolean().default(false).describe('Schedule from due date rather than completed date'),
   }),
   z.object({
     mode: z.literal('weeks').describe('Repeat every n weeks'),
-    count: z.int().min(1).describe('Weeks between occurences'),
+    count: z.int().min(1).describe('Weeks between occurrences'),
     fromDue: z.boolean().default(false).describe('Schedule from due date rather than completed date'),
     day: z.int().min(0).max(6).optional().describe('Optional day of week'),
   }),
   z.object({
     mode: z.literal('months').describe('Repeat every n months'),
-    count: z.int().min(1).describe('Months between occurences'),
+    count: z.int().min(1).describe('Months between occurrences'),
     fromDue: z.boolean().default(false).describe('Schedule from due date rather than completed date'),
     day: z
       .union([z.int().min(1).max(31), z.int().min(-31).max(-1)])
@@ -41,6 +41,14 @@ export const repeatSchema = z.discriminatedUnion('mode', [
 ]);
 export type Repeat = z.infer<typeof repeatSchema>;
 
+export const timeSchema = z.object({
+  hour: z.int().min(0).max(23).default(0),
+  minute: z.int().min(0).max(59).default(0),
+  second: z.int().min(0).max(59).default(0),
+  ms: z.int().min(0).max(999).default(0),
+});
+export type Time = z.infer<typeof timeSchema>;
+
 export const todoSchema = z.object({
   id: z.int().describe('Unique identifier'),
   userId: z.string().describe('User identifier'),
@@ -48,14 +56,18 @@ export const todoSchema = z.object({
   done: z.boolean().describe('Is the todo done'),
   snoozed: z.boolean().describe('Is the todo snoozed'),
   repeat: repeatSchema.describe('Repeat behaviour'),
-  createdAt: z.date().describe('Date the todo was created'),
-  updatedAt: z.date().describe('Date the todo was updated'),
+  repeatTime: timeSchema.describe('Repeat time'),
+  dueAt: z.date().nullable().describe('Due date'),
+  createdAt: z.date().describe('Created date'),
+  updatedAt: z.date().describe('Updated date'),
 });
 export type Todo = z.infer<typeof todoSchema>;
 
 export type TodoWithCompletedAt = Todo & { completedAt: Date | null };
 
-export const todoInsertParamsSchema = todoSchema.pick({ name: true, done: true }).partial({ done: true });
+export const todoInsertParamsSchema = todoSchema
+  .omit({ createdAt: true, updatedAt: true, userId: true, id: true })
+  .partial({ done: true });
 export type TodoInsertParams = z.infer<typeof todoInsertParamsSchema>;
 
 export const todoUpdateParamsSchema = todoSchema

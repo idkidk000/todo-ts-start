@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { int, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { userTable } from '@/lib/drizzle.server/schema/better-auth';
-import type { Repeat } from '@/lib/schemas';
+import type { Repeat, Time } from '@/lib/schemas';
 
 export const todoTable = sqliteTable(
   'todo',
@@ -17,6 +17,11 @@ export const todoTable = sqliteTable(
       .notNull()
       .default({ mode: 'never' } satisfies Repeat)
       .$type<Repeat>(),
+    repeatTime: text({ mode: 'json' })
+      .notNull()
+      .default({ hour: 0, minute: 0, second: 0, ms: 0 } satisfies Time)
+      .$type<Time>(),
+    dueAt: int({ mode: 'timestamp_ms' }),
     createdAt: int({ mode: 'timestamp_ms' }).notNull().default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
     updatedAt: int({ mode: 'timestamp_ms' })
       .notNull()

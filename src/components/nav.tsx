@@ -11,7 +11,7 @@ export function Nav() {
 
   const handleSignoutClick = useCallback(() => signOut().finally(() => navigate({ to: '/' })), [navigate]);
   return (
-    <nav className='sticky top-0 -mt-4 -mx-4 p-4 bg-background shadow-lg flex justify-between items-center gap-4'>
+    <nav className='sticky top-0 -mt-4 -mx-4 p-4 bg-background shadow-lg flex justify-between items-center gap-4 slide-in-down z-10'>
       <Link to='/' className='me-auto'>
         <h1>Todos</h1>
       </Link>

@@ -22,8 +22,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "src/routes/_authed.tsx",
+    "src/routes/_authenticated/route.tsx",
     "src/routes/api/auth/$.ts",
-    "src/routes/_authed/todos/{-$todoId}.tsx"
+    "src/routes/_authenticated/todos/{-$todoId}.tsx"
   ]
 }

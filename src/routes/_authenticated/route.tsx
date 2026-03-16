@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { Nav } from '@/components/nav';
@@ -6,9 +5,8 @@ import { DataProvider } from '@/hooks/data';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { todoWithCompletedAtSelect } from '@/lib/todos';
 
-// runs for everything under the virtual route /_authed
-// the actual urls do not contain /_authed
-export const Route = createFileRoute('/_authed')({
+// https://tanstack.com/router/latest/docs/routing/routing-concepts#pathless-layout-routes
+export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async () => {
     try {
       const session = await getSessionOrThrow();
@@ -27,15 +25,11 @@ export const Route = createFileRoute('/_authed')({
   component: AuthedComponent,
 });
 
-const queryClient = new QueryClient();
-
 function AuthedComponent() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthedDocument>
-        <Outlet />
-      </AuthedDocument>
-    </QueryClientProvider>
+    <AuthedDocument>
+      <Outlet />
+    </AuthedDocument>
   );
 }
 

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { eq, getTableColumns, inArray, max } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, max } from 'drizzle-orm';
 import SuperJSON from 'superjson';
 import { getSession } from '@/lib/better-auth/server';
 import { db } from '@/lib/drizzle.server';
@@ -28,53 +28,47 @@ const streams = new Set<AuthenticatedStream>();
 const messageClient = new MessageClient(import.meta.url);
 
 // TODO: may want to throttle this and cache invalidations for a while
-const unsubscribe = messageClient.subscribe('invalidate', async ({ kind, ids }) => {
+const unsubscribe = messageClient.subscribe('invalidate', async ({ kind, ids, userId }) => {
   console.log('sse received invalidation', kind, ids, streams.size);
   if (!streams.size) return;
 
   // TODO: handle history once implemented in frontend
   if (kind !== 'todo') throw new Error(`sse: unhandled message kind ${kind}`);
 
-  // FIXME: i don't seem to be able to call server functions from here (even with passwed headers) so i may need raw (plain functions) and wrapped (createServerFn) versions
-  const updatedTodos = await db
-    .select({
-      ...getTableColumns(todoTable),
-      completedAt: max(historyTable.createdAt),
-    })
-    .from(todoTable)
-    .leftJoin(historyTable, eq(historyTable.todoId, todoTable.id))
-    .where(inArray(todoTable.id, ids))
-    .groupBy(todoTable.id);
-  // sets would be more correct but slower for such small item counts
-  const deletedIds = ids.filter((id) => !updatedTodos.find((updated) => updated.id === id));
-
-  // FIXME: need to come up with something better for deletions. we no longer have the record so we can't determine who it belonged to. sending all deleted ids to all clients seems kind of leaky
   for (const stream of streams) {
+    if (stream.session.user.id !== userId) continue;
     const now = Date.now();
     if (stream.validatedAt < now - REAUTHENTICATE_MS) {
       const session = await getSession({ headers: stream.headers });
-      if (!session?.session || !session.user) {
+      if (session?.session && session?.user) {
+        stream.validatedAt = now;
+        stream.session = session;
+        console.log('reauthenticated', stream.session);
+      } else {
         console.error('could not reauthenticate stream', stream.session);
         stream.controller.close();
+        streams.delete(stream);
         continue;
       }
-      stream.validatedAt = now;
-      stream.session = session;
     }
-    const updated = updatedTodos.filter((item) => item.userId === stream.session.user.id);
-    if (!updated.length && !deletedIds.length) continue;
-    const string = `event: invalidate\ndata: ${SuperJSON.stringify({ updated, ids: [...deletedIds, ...updated.map(({ id }) => id)] } satisfies SseInvalidation)}\n\n`;
-    console.log('sse send', string);
-    stream.controller.enqueue(string);
+    const updated = await db
+      .select({ ...getTableColumns(todoTable), completedAt: max(historyTable.createdAt) })
+      .from(todoTable)
+      .leftJoin(historyTable, eq(historyTable.todoId, todoTable.id))
+      .where(and(inArray(todoTable.id, ids), eq(todoTable.userId, userId)));
+    const chunk = `event: invalidate\ndata: ${SuperJSON.stringify({ updated, ids } satisfies SseInvalidation)}\n\n`;
+    console.log('sse send', chunk);
+    stream.controller.enqueue(chunk);
   }
 });
 
 export const Route = createFileRoute('/api/sse')({
   server: {
     handlers: {
-      GET: async ({ request }: { request: Request }) => {
-        console.log('sse get', request);
-        const session = await getSession({ headers: request.headers });
+      GET: async ({ request: { headers } }: { request: Request }) => {
+        const validatedAt = Date.now();
+        console.log('sse get', headers.get('cookie'));
+        const session = await getSession({ headers });
         if (!session?.user) {
           console.error('sse unauthenticated');
           return new Response(JSON.stringify({ ok: false, error: 'auth failed' }), {
@@ -89,8 +83,8 @@ export const Route = createFileRoute('/api/sse')({
               const stream: AuthenticatedStream = {
                 controller: streamController,
                 session,
-                headers: request.headers,
-                validatedAt: Date.now(),
+                headers,
+                validatedAt,
               };
               streams.add(stream);
               abortController.signal.addEventListener('abort', () => streams.delete(stream));

@@ -9,14 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSseRouteImport } from './routes/api/sse'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AuthedTodosChar123TodoIdChar125RouteImport } from './routes/_authed/todos/{-$todoId}'
+import { Route as AuthenticatedTodosChar123TodoIdChar125RouteImport } from './routes/_authenticated/todos/{-$todoId}'
 
-const AuthedRoute = AuthedRouteImport.update({
-  id: '/_authed',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,31 +34,31 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedTodosChar123TodoIdChar125Route =
-  AuthedTodosChar123TodoIdChar125RouteImport.update({
+const AuthenticatedTodosChar123TodoIdChar125Route =
+  AuthenticatedTodosChar123TodoIdChar125RouteImport.update({
     id: '/todos/{-$todoId}',
     path: '/todos/{-$todoId}',
-    getParentRoute: () => AuthedRoute,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/sse': typeof ApiSseRoute
-  '/todos/{-$todoId}': typeof AuthedTodosChar123TodoIdChar125Route
+  '/todos/{-$todoId}': typeof AuthenticatedTodosChar123TodoIdChar125Route
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/sse': typeof ApiSseRoute
-  '/todos/{-$todoId}': typeof AuthedTodosChar123TodoIdChar125Route
+  '/todos/{-$todoId}': typeof AuthenticatedTodosChar123TodoIdChar125Route
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/api/sse': typeof ApiSseRoute
-  '/_authed/todos/{-$todoId}': typeof AuthedTodosChar123TodoIdChar125Route
+  '/_authenticated/todos/{-$todoId}': typeof AuthenticatedTodosChar123TodoIdChar125Route
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -69,26 +69,26 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/_authed'
+    | '/_authenticated'
     | '/api/sse'
-    | '/_authed/todos/{-$todoId}'
+    | '/_authenticated/todos/{-$todoId}'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiSseRoute: typeof ApiSseRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_authed': {
-      id: '/_authed'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -112,30 +112,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/todos/{-$todoId}': {
-      id: '/_authed/todos/{-$todoId}'
+    '/_authenticated/todos/{-$todoId}': {
+      id: '/_authenticated/todos/{-$todoId}'
       path: '/todos/{-$todoId}'
       fullPath: '/todos/{-$todoId}'
-      preLoaderRoute: typeof AuthedTodosChar123TodoIdChar125RouteImport
-      parentRoute: typeof AuthedRoute
+      preLoaderRoute: typeof AuthenticatedTodosChar123TodoIdChar125RouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AuthedRouteChildren {
-  AuthedTodosChar123TodoIdChar125Route: typeof AuthedTodosChar123TodoIdChar125Route
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedTodosChar123TodoIdChar125Route: typeof AuthenticatedTodosChar123TodoIdChar125Route
 }
 
-const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedTodosChar123TodoIdChar125Route: AuthedTodosChar123TodoIdChar125Route,
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedTodosChar123TodoIdChar125Route:
+    AuthenticatedTodosChar123TodoIdChar125Route,
 }
 
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiSseRoute: ApiSseRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
