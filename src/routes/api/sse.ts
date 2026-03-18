@@ -5,13 +5,12 @@ import { getSession } from '@/lib/better-auth/server';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable } from '@/lib/drizzle.server/schema';
 import { MessageClient } from '@/lib/messaging.server';
-import type { TodoWithCompletedAt } from '@/lib/schemas';
+import type { Todo } from '@/lib/schemas';
 
 // https://tanstack.com/start/latest/docs/framework/react/guide/server-routes
 
 const REAUTHENTICATE_MS = 60_000;
 
-// TODO: periodically revalidate auth
 interface AuthenticatedStream {
   controller: ReadableStreamDefaultController<unknown>;
   session: NonNullable<Awaited<ReturnType<typeof getSession>>>;
@@ -20,7 +19,7 @@ interface AuthenticatedStream {
 }
 
 export interface SseInvalidation {
-  updated: TodoWithCompletedAt[];
+  updated: Todo[];
   ids: number[];
 }
 

@@ -6,7 +6,7 @@ import { Modal, ModalContent, useModal } from '@/components/modal';
 import { TodoCard } from '@/components/todo-card';
 import { TodoForm } from '@/forms/todo';
 import { useData } from '@/hooks/data';
-import type { TodoWithCompletedAt } from '@/lib/schemas';
+import type { Todo } from '@/lib/schemas';
 
 export const Route = createFileRoute('/_authenticated/todos/{-$todoId}')({
   component: Dashboard,
@@ -40,8 +40,8 @@ function Dashboard() {
   );
 }
 
-function TodoModal({ todo }: { todo: TodoWithCompletedAt | undefined }) {
-  const { open } = useModal();
+function TodoModal({ todo }: { todo: Todo | undefined }) {
+  const { close, open } = useModal();
   const navigate = useNavigate();
 
   const handleClose = useCallback(() => {
@@ -53,5 +53,12 @@ function TodoModal({ todo }: { todo: TodoWithCompletedAt | undefined }) {
     if (todo) open();
   }, [todo]);
 
-  return <ModalContent onClose={handleClose}>{todo ? <TodoCard {...todo} /> : null}</ModalContent>;
+  return (
+    <ModalContent onClose={handleClose}>
+      <div className='flex flex-col gap-4'>
+        <h2>{`Edit ${todo?.name ?? 'Todo'}`}</h2>
+        <TodoForm todoId={todo?.id} onSubmitted={close} />
+      </div>
+    </ModalContent>
+  );
 }

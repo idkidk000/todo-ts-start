@@ -3,10 +3,10 @@ import { useCallback, useMemo } from 'react';
 import { Badge } from '@/components/badge';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import type { TodoWithCompletedAt } from '@/lib/schemas';
+import type { Todo } from '@/lib/schemas';
 import { todoDelete, todoUpdate } from '@/lib/todos';
 
-export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snoozed, updatedAt }: TodoWithCompletedAt) {
+export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snoozed, updatedAt }: Todo) {
   const router = useRouter();
   const navigate = useNavigate();
 

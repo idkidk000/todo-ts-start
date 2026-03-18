@@ -39,8 +39,15 @@ export function Input<T extends string | number | boolean | Date>({
       if (type === 'checkbox') onValueChange?.(event.target.checked as T);
       else if (type === 'number') onValueChange?.(event.target.valueAsNumber as T);
       // date is nullable
-      else if (type === 'date') onValueChange?.(event.target.valueAsDate as unknown as T);
-      else onValueChange?.(event.target.value as T);
+      else if (type === 'date') {
+        console.log(
+          'input date handleChange',
+          event.target.value,
+          event.target.valueAsNumber,
+          event.target.valueAsDate
+        );
+        onValueChange?.(event.target.valueAsDate as unknown as T);
+      } else onValueChange?.(event.target.value as T);
       onChange?.(event);
     },
     [onChange, onValueChange, type]
@@ -99,7 +106,9 @@ export function Input<T extends string | number | boolean | Date>({
         'border border-border shadow-sm rounded-md px-4 py-1 outline-primary focus-visible:outline-2',
         className
       )}
-      value={typeof value === 'string' ? value : String(value)}
+      value={
+        value instanceof Date ? value.toISOString().slice(0, 10) : typeof value === 'string' ? value : String(value)
+      }
       {...props}
     />
   );

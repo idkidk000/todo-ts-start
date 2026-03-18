@@ -1,18 +1,25 @@
+import { useStore } from '@tanstack/react-form';
 import { type SubmitEvent, useCallback, useMemo } from 'react';
 import z from 'zod';
 import { useData } from '@/hooks/data';
 import { FieldsMetaProvider } from '@/hooks/fields-meta';
-import { getJsonSchemaFields, makeZodValidator, useAppForm } from '@/lib/form';
-import { todoInsertParamsSchema } from '@/lib/schemas';
+import { makeFieldsMeta, makeFieldsMetaFromDiscUnion, makeZodValidator, useAppForm, zodToJsonSchema } from '@/lib/form';
+import { repeatModes, repeatSchema, type TodoUpdateParams, todoInsertParamsSchema, weekDays } from '@/lib/schemas';
 import { todoInsert, todoUpdate } from '@/lib/todos';
+import { camelToSentenceCase } from '@/lib/utils';
 
 // FIXME: schemas need tidying up
 const schema = todoInsertParamsSchema.required().extend({ id: z.int().optional() });
 type Schema = z.infer<typeof schema>;
 const validator = makeZodValidator(schema);
-const fieldsMeta = getJsonSchemaFields(schema.toJSONSchema({ target: 'openapi-3.0' }));
 
-export function TodoForm({ todoId }: { todoId?: number }) {
+const todoJsonSchema = zodToJsonSchema(schema, { target: 'openapi-3.0' });
+const todoFieldsMeta = makeFieldsMeta(todoJsonSchema);
+
+const repeatJsonSchema = zodToJsonSchema(repeatSchema, { target: 'openapi-3.0' });
+console.log('repeatJsonSchema', repeatJsonSchema);
+
+export function TodoForm({ todoId, onSubmitted }: { todoId?: number; onSubmitted?: () => void }) {
   const { todos } = useData();
   const defaultValues: Schema = useMemo(() => {
     const todo = todoId ? todos.find((item) => item.id === todoId) : null;
@@ -26,6 +33,7 @@ export function TodoForm({ todoId }: { todoId?: number }) {
       snoozed: false,
     };
   }, [todoId, todos.find]);
+
   const form = useAppForm({
     validators: {
       onBlur: validator,
@@ -33,11 +41,23 @@ export function TodoForm({ todoId }: { todoId?: number }) {
     },
     defaultValues,
     onSubmit({ value, formApi }) {
-      ('id' in value && typeof value.id === 'number' ? todoUpdate({ data: value }) : todoInsert({ data: value })).then(
-        () => formApi.reset()
-      );
+      ('id' in value && typeof value.id === 'number'
+        ? todoUpdate({ data: value as TodoUpdateParams })
+        : todoInsert({ data: value })
+      ).then(() => {
+        formApi.reset();
+        onSubmitted?.();
+      });
     },
   });
+
+  const repeatMode = useStore(form.store, (state) => state.values.repeat.mode);
+
+  const repeatFieldsMeta = useMemo(() => {
+    const result = makeFieldsMetaFromDiscUnion(repeatJsonSchema, repeatMode, { fieldName: 'mode', rootPath: 'repeat' });
+    console.log('repeatFieldsMeta', result);
+    return result;
+  }, [repeatMode]);
 
   const handleSubmit = useCallback(
     (event: SubmitEvent<HTMLFormElement>) => {
@@ -46,16 +66,44 @@ export function TodoForm({ todoId }: { todoId?: number }) {
     },
     [form.handleSubmit]
   );
+
   return (
-    <FieldsMetaProvider fieldsMeta={fieldsMeta}>
-      <form className='grid grid-cols-[auto_1fr] gap-4 items-center mx-auto' onSubmit={handleSubmit}>
+    <FieldsMetaProvider fieldsMeta={todoFieldsMeta}>
+      <form
+        className='grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_auto_1fr] lg:grid-cols-[auto_1fr_auto_1fr_auto_1fr] gap-4 items-center mx-auto'
+        onSubmit={handleSubmit}
+      >
         <form.AppField name='name'>{(field) => <field.FormInput type='text' />}</form.AppField>
         <form.AppField name='done'>{(field) => <field.FormInput type='checkbox' />}</form.AppField>
         <form.AppField name='dueAt'>{(field) => <field.FormInput type='date' />}</form.AppField>
+        <form.AppField name='repeat.mode'>
+          {(field) => (
+            <field.FormSelect
+              type='string'
+              options={repeatModes.map((value) => ({ label: camelToSentenceCase(value), value }))}
+            />
+          )}
+        </form.AppField>
 
-        <form.Button className='col-span-full mx-auto' type='submit'>
-          {defaultValues?.id ? 'Update' : 'Create'}
-        </form.Button>
+        <FieldsMetaProvider fieldsMeta={repeatFieldsMeta}>
+          <form.AppField name='repeat.count'>{(field) => <field.FormInput type='number' />}</form.AppField>
+          <form.AppField name='repeat.fromDue'>{(field) => <field.FormInput type='checkbox' />}</form.AppField>
+          <form.AppField name='repeat.monthDay'>{(field) => <field.FormInput type='number' />}</form.AppField>
+          <form.AppField name='repeat.weekDay'>
+            {(field) => <field.FormSelect type='number' options={weekDays} />}
+          </form.AppField>
+          <form.AppField name='repeat.weekDays'>
+            {(field) => <field.FormSelect type='number' options={weekDays} multiple />}
+          </form.AppField>
+          {/* TODO: repeat.monthDays and repeat.yearDays need another custom input type. maybe an input[type="text"] whose values are split on /[\s,]+/ and mapped to Number. or a combobox */}
+        </FieldsMetaProvider>
+
+        <div className='col-span-full flex justify-around'>
+          <form.Button type='submit'>{defaultValues?.id ? 'Update' : 'Create'}</form.Button>
+          <form.Button type='reset' variant='danger'>
+            Reset
+          </form.Button>
+        </div>
       </form>
     </FieldsMetaProvider>
   );

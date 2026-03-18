@@ -51,7 +51,7 @@ export function Badge<T extends ElementType = 'span'>({
   as?: T;
   ref?: RefObject<HTMLElement | null>;
 }) {
-  const Component = as ?? 'button';
+  const Component = as ?? 'span';
   return (
     <Component className={cn(sizes[size], variants[variant], className)} {...props}>
       {children}

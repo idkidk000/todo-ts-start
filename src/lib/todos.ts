@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
-import { and, eq, getTableColumns, inArray, max } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable } from '@/lib/drizzle.server/schema';
@@ -9,7 +9,6 @@ import {
   type TodoDeleteParams,
   type TodoInsertParams,
   type TodoUpdateParams,
-  type TodoWithCompletedAt,
   todoDeleteParamsSchema,
   todoInsertParamsSchema,
   todoSelectParamsSchema,
@@ -27,22 +26,6 @@ export const todoSelect = createServerFn({ method: 'GET' })
       .select()
       .from(todoTable)
       .where(and(eq(todoTable.userId, user.id), data ? inArray(todoTable.id, data) : undefined));
-    return result;
-  });
-
-export const todoWithCompletedAtSelect = createServerFn({ method: 'GET' })
-  .inputValidator((data) => todoSelectParamsSchema.parse(data))
-  .handler(async ({ data }) => {
-    const { user } = await getSessionOrThrow();
-    const result: TodoWithCompletedAt[] = await db
-      .select({
-        ...getTableColumns(todoTable),
-        completedAt: max(historyTable.createdAt),
-      })
-      .from(todoTable)
-      .leftJoin(historyTable, eq(historyTable.todoId, todoTable.id))
-      .where(and(eq(todoTable.userId, user.id), data ? inArray(todoTable.id, data) : undefined))
-      .groupBy(todoTable.id);
     return result;
   });
 

@@ -22,6 +22,7 @@ export const todoTable = sqliteTable(
       .default({ hour: 0, minute: 0, second: 0, ms: 0 } satisfies Time)
       .$type<Time>(),
     dueAt: int({ mode: 'timestamp_ms' }),
+    completedAt: int({ mode: 'timestamp_ms' }),
     createdAt: int({ mode: 'timestamp_ms' }).notNull().default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
     updatedAt: int({ mode: 'timestamp_ms' })
       .notNull()

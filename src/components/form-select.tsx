@@ -1,15 +1,16 @@
 import { Activity, type ComponentProps, useId } from 'react';
-import { Input } from '@/components/input';
+import { Select } from '@/components/select';
 import { useFieldsMeta } from '@/hooks/fields-meta';
 import { useFieldContext } from '@/lib/form';
 import { camelToSentenceCase } from '@/lib/utils';
 
-export function FormInput<T extends string | number | boolean | Date>({
+export function FormSelect<T extends string | number, M extends boolean>({
   label,
-  placeholder,
+  // the `select` dom primitive does not have a placeholder
+  // placeholder,
   description,
   ...props
-}: Omit<ComponentProps<typeof Input<T>>, 'value' | 'onValueChange' | 'onBlur'> & {
+}: Omit<ComponentProps<typeof Select<T, M>>, 'value' | 'onValueChange' | 'onBlur'> & {
   label?: string;
   description?: string;
 }) {
@@ -28,12 +29,12 @@ export function FormInput<T extends string | number | boolean | Date>({
         <label htmlFor={id} className='font-semibold'>
           {fieldLabel}
         </label>
-        <Input
+        <Select
           id={id}
-          value={field.state.value}
-          onValueChange={field.handleChange as (value: T | (T extends Date ? null : never)) => void}
+          value={field.state.value as M extends true ? T[] : T}
+          onValueChange={field.handleChange as (value: M extends true ? T[] : T) => void}
           onBlur={field.handleBlur}
-          placeholder={placeholder ?? fieldLabel}
+          // placeholder={placeholder ?? fieldLabel}
           {...props}
         />
         {field.state.meta.errors.length && field.state.meta.isTouched ? (

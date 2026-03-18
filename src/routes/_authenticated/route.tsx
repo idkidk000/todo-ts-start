@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Nav } from '@/components/nav';
 import { DataProvider } from '@/hooks/data';
 import { getSessionOrThrow } from '@/lib/better-auth';
-import { todoWithCompletedAtSelect } from '@/lib/todos';
+import { todoSelect } from '@/lib/todos';
 
 // https://tanstack.com/router/latest/docs/routing/routing-concepts#pathless-layout-routes
 export const Route = createFileRoute('/_authenticated')({
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated')({
   },
   async loader() {
     // available under Route.loaderData
-    return await todoWithCompletedAtSelect();
+    return await todoSelect();
   },
   component: AuthedComponent,
 });

@@ -13,33 +13,39 @@ export const repeatSchema = z.discriminatedUnion('mode', [
     mode: z.literal('weeks').describe('Repeat every n weeks'),
     count: z.int().min(1).describe('Weeks between occurrences'),
     fromDue: z.boolean().default(false).describe('Schedule from due date rather than completed date'),
-    day: z.int().min(0).max(6).optional().describe('Optional day of week'),
+    weekDay: z.int().min(0).max(6).optional().describe('Optional day of week'),
   }),
   z.object({
     mode: z.literal('months').describe('Repeat every n months'),
     count: z.int().min(1).describe('Months between occurrences'),
     fromDue: z.boolean().default(false).describe('Schedule from due date rather than completed date'),
-    day: z
+    monthDay: z
       .union([z.int().min(1).max(31), z.int().min(-31).max(-1)])
       .optional()
-      .describe('Optional day of month'),
+      .describe('Optional day of month. Negative values are accepted'),
   }),
   z.object({
     mode: z.literal('weekDays').describe('Repeat on selected days of the week'),
-    days: z.array(z.int().min(0).max(6)).describe('Week days'),
+    weekDays: z.array(z.int().min(0).max(6)).describe('Week days'),
   }),
   z.object({
     mode: z.literal('monthDays').describe('Repeat on selected days of the month'),
-    days: z
+    monthDays: z
       .array(z.union([z.int().min(1).max(31), z.int().min(-31).max(-1)]))
       .describe('Month days. Negative values are accepted'),
   }),
   z.object({
     mode: z.literal('yearDays').describe('Repeat on selected days of the year'),
-    days: z.array(z.int().min(1).max(365)).describe('Year days'),
+    yearDays: z.array(z.int().min(1).max(365)).describe('Year days'),
   }),
 ]);
 export type Repeat = z.infer<typeof repeatSchema>;
+export const repeatModes: Repeat['mode'][] = ['never', 'days', 'weeks', 'months', 'monthDays', 'weekDays', 'yearDays'];
+
+export const weekDays = (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const).map(
+  (label, value) => ({ value, label })
+);
+export type WeekDayName = (typeof weekDays)[number]['label'];
 
 export const timeSchema = z.object({
   hour: z.int().min(0).max(23).default(0),
@@ -51,27 +57,26 @@ export type Time = z.infer<typeof timeSchema>;
 
 export const todoSchema = z.object({
   id: z.int().describe('Unique identifier'),
-  userId: z.string().describe('User identifier'),
-  name: z.string().describe('Todo name'),
+  userId: z.string().length(32).describe('User identifier'),
+  name: z.string().min(4).describe('Todo name'),
   done: z.boolean().describe('Is the todo done'),
   snoozed: z.boolean().describe('Is the todo snoozed'),
   repeat: repeatSchema.describe('Repeat behaviour'),
   repeatTime: timeSchema.describe('Repeat time'),
   dueAt: z.date().nullable().describe('Due date'),
+  completedAt: z.date().nullable().describe('Last completed date'),
   createdAt: z.date().describe('Created date'),
   updatedAt: z.date().describe('Updated date'),
 });
 export type Todo = z.infer<typeof todoSchema>;
 
-export type TodoWithCompletedAt = Todo & { completedAt: Date | null };
-
 export const todoInsertParamsSchema = todoSchema
-  .omit({ createdAt: true, updatedAt: true, userId: true, id: true })
+  .omit({ createdAt: true, updatedAt: true, userId: true, id: true, completedAt: true })
   .partial({ done: true });
 export type TodoInsertParams = z.infer<typeof todoInsertParamsSchema>;
 
 export const todoUpdateParamsSchema = todoSchema
-  .omit({ createdAt: true, updatedAt: true, userId: true })
+  .omit({ createdAt: true, updatedAt: true, userId: true, completedAt: true })
   .partial()
   .required({ id: true });
 export type TodoUpdateParams = z.infer<typeof todoUpdateParamsSchema>;

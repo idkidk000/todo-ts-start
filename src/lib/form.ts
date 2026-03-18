@@ -1,6 +1,8 @@
 import { createFormHook, createFormHookContexts } from '@tanstack/react-form';
+import z from 'zod';
 import { Button } from '@/components/button';
 import { FormInput } from '@/components/form-input';
+import { FormSelect } from '@/components/form-select';
 
 // https://tanstack.com/form/latest/docs/framework/react/guides/form-composition
 
@@ -11,6 +13,7 @@ export const { useAppForm } = createFormHook({
   formContext,
   fieldComponents: {
     FormInput,
+    FormSelect,
   },
   formComponents: {
     Button,
@@ -25,7 +28,7 @@ export type FieldsMeta = Map<DottedFieldPath, { description: string | undefined;
  * @param kind the discriminator
  * @returns `Map<field name in dot notation, { description: string | undefined, required: boolean }>` for the narrowed schema
  */
-export function getJsonSchemaFields(openApiJsonSchema: Record<string, unknown>, rootPath?: string): FieldsMeta {
+export function makeFieldsMeta(openApiJsonSchema: Record<string, unknown>, rootPath?: string): FieldsMeta {
   function recurse(
     fragment: Record<string, unknown>,
     path?: string,
@@ -69,15 +72,19 @@ export function getJsonSchemaFields(openApiJsonSchema: Record<string, unknown>, 
 
 /**
  * @param openApiJsonSchema Zod discriminated union exported to JSON schema in OpenAPI 3 format
- * @param kind the discriminator
+ * @param discriminator the discriminator
  * @returns `Map<field name in dot notation, { description: string | undefined, required: boolean }>` for the narrowed schema
  */
-export function getJsonSchemaDiscUnionFields(openApiJsonSchema: { oneOf?: unknown }, kind: string): FieldsMeta {
-  const narrowed = (openApiJsonSchema.oneOf as unknown as { properties: { kind: { enum: string[] } } }[]).find((item) =>
-    item.properties.kind.enum.includes(kind)
+export function makeFieldsMetaFromDiscUnion(
+  openApiJsonSchema: { oneOf?: unknown },
+  discriminator: string,
+  { fieldName, rootPath }: { fieldName: string; rootPath: string } = { fieldName: 'kind', rootPath: 'params' }
+): FieldsMeta {
+  const narrowed = (openApiJsonSchema.oneOf as unknown as { properties: { [fieldName]: { enum: string[] } } }[]).find(
+    (item) => item.properties[fieldName].enum.includes(discriminator)
   );
-  if (!narrowed) throw new Error(`could not narrow json schema to kind: ${kind}`);
-  return getJsonSchemaFields(narrowed, 'params');
+  if (!narrowed) throw new Error(`could not narrow json schema to ${fieldName}: ${discriminator}`);
+  return makeFieldsMeta(narrowed, rootPath);
 }
 
 /** wraps a zod schema to help with tanstack form's anger issues */
@@ -111,3 +118,46 @@ export function makeZodValidator(zodSchema: {
     return { fields };
   };
 }
+
+// https://github.com/colinhacks/zod/issues/4508#issuecomment-2905787171
+/**
+ * Converts Zod schema to JSON Schema with proper handling of unsupported types
+ * @param zodSchema The Zod schema to convert
+ * @returns JSON Schema object
+ */
+export const zodToJsonSchema = <T extends z.ZodTypeAny>(
+  zodSchema: T,
+  params?: Omit<Required<Parameters<typeof zodSchema.toJSONSchema>[0]>, 'unrepresentable' | 'override'>
+) => {
+  return z.toJSONSchema(zodSchema, {
+    unrepresentable: 'any',
+    override: (ctx) => {
+      const def = ctx.zodSchema._zod.def;
+
+      if (!def || !def?.type) return;
+
+      switch (def.type) {
+        case 'date':
+          ctx.jsonSchema.type = 'string';
+          ctx.jsonSchema.format = 'date-time';
+          break;
+
+        case 'bigint':
+          // BigInt can be represented as string to preserve precision
+          ctx.jsonSchema.type = 'string';
+          ctx.jsonSchema.pattern = '^-?\\d+$';
+          ctx.jsonSchema.description = 'BigInt represented as string';
+          break;
+
+        case 'symbol':
+          ctx.jsonSchema.type = 'string';
+          ctx.jsonSchema.description = 'Symbol represented as string';
+          break;
+
+        default:
+          break;
+      }
+    },
+    ...params,
+  });
+};
