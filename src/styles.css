@@ -10,15 +10,16 @@
   --color-dark: var(--color-gray-950);
   --color-foreground: light-dark(var(--color-dark), var(--color-light));
   --color-background: light-dark(var(--color-light), var(--color-dark));
-  --color-muted: light-dark(var(--color-gray-500), var(--color-gray-400));
   --color-border: light-dark(hsl(from var(--color-dark) h s l / 20%), hsl(from var(--color-light) h s l / 40%));
+  --color-muted: light-dark(var(--color-gray-500), var(--color-gray-400));
+  --color-muted-contrast: light-dark(var(--color-light), var(--color-dark));
   --color-primary: var(--color-violet-500);
   --color-danger: var(--color-rose-500);
   --color-warning: var(--color-amber-500);
   --color-success: var(--color-emerald-500);
   --color-primary-contrast: var(--color-violet-100);
   --color-danger-contrast: var(--color-rose-100);
-  --color-warning-contrast: var(--color-amber-900);
+  --color-warning-contrast: var(--color-amber-950);
   --color-success-contrast: var(--color-emerald-100);
 }
 

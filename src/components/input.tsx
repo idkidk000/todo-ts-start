@@ -20,7 +20,7 @@ export function Input<T extends string | number | boolean | Date>({
       ? 'number'
       : T extends Date
         ? 'date'
-        : 'text' | 'password' | 'textarea';
+        : 'text' | 'password' | 'textarea' | 'search';
 }) {
   const [show, setShow] = useState(false);
 

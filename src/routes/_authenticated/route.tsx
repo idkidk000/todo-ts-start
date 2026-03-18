@@ -1,6 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { Nav } from '@/components/nav';
 import { DataProvider } from '@/hooks/data';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { todoSelect } from '@/lib/todos';
@@ -36,10 +35,5 @@ function AuthedComponent() {
 function AuthedDocument({ children }: Readonly<{ children: ReactNode }>) {
   const initialTodos = Route.useLoaderData();
 
-  return (
-    <DataProvider initialTodos={initialTodos}>
-      <Nav />
-      {children}
-    </DataProvider>
-  );
+  return <DataProvider initialTodos={initialTodos}>{children}</DataProvider>;
 }

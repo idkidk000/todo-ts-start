@@ -1,5 +1,10 @@
 import z from 'zod';
 
+export const weekDays = (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const).map(
+  (label, value) => ({ value, label })
+);
+export type WeekDayName = (typeof weekDays)[number]['label'];
+
 export const repeatSchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('never').describe('Do not repeat'),
@@ -26,26 +31,38 @@ export const repeatSchema = z.discriminatedUnion('mode', [
   }),
   z.object({
     mode: z.literal('weekDays').describe('Repeat on selected days of the week'),
-    weekDays: z.array(z.int().min(0).max(6)).describe('Week days'),
+    weekDays: z.array(z.int().min(0).max(6)).min(1).describe('Week days'),
   }),
   z.object({
     mode: z.literal('monthDays').describe('Repeat on selected days of the month'),
     monthDays: z
       .array(z.union([z.int().min(1).max(31), z.int().min(-31).max(-1)]))
+      .min(1)
       .describe('Month days. Negative values are accepted'),
   }),
   z.object({
     mode: z.literal('yearDays').describe('Repeat on selected days of the year'),
-    yearDays: z.array(z.int().min(1).max(365)).describe('Year days'),
+    yearDays: z.array(z.int().min(1).max(365)).min(1).describe('Year days'),
   }),
 ]);
 export type Repeat = z.infer<typeof repeatSchema>;
 export const repeatModes: Repeat['mode'][] = ['never', 'days', 'weeks', 'months', 'monthDays', 'weekDays', 'yearDays'];
+export function repeatToString(value: Repeat): string {
+  const tokens: string[] = [
+    value.mode === 'days' ? (value.count > 1 ? `Every ${value.count} days` : 'Every day') : null,
+    value.mode === 'weeks' ? (value.count > 1 ? `Every ${value.count} weeks` : 'Every week') : null,
+    value.mode === 'months' ? (value.count > 1 ? `Every ${value.count} months` : 'Every month') : null,
 
-export const weekDays = (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const).map(
-  (label, value) => ({ value, label })
-);
-export type WeekDayName = (typeof weekDays)[number]['label'];
+    value.mode === 'weekDays' ? value.weekDays.map((weekDay) => weekDays[weekDay].label).join(', ') : null,
+    value.mode === 'monthDays' ? `Month days ${value.monthDays.join(', ')}` : null,
+    value.mode === 'yearDays' ? `Year days ${value.yearDays.join(', ')}` : null,
+
+    `weekDay` in value && typeof value.weekDay === 'number' ? `on ${weekDays[value.weekDay]}` : null,
+    `monthDay` in value && typeof value.monthDay === 'number' ? `on day ${value.monthDay}` : null,
+    `fromDue` in value && value.fromDue ? 'from due date' : null,
+  ].filter((token) => token !== null);
+  return tokens.length ? tokens.join(' ') : 'Never';
+}
 
 export const timeSchema = z.object({
   hour: z.int().min(0).max(23).default(0),

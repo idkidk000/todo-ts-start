@@ -8,6 +8,7 @@ import { FormDevtoolsPanel } from '@tanstack/react-form-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { Nav } from '@/components/nav';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -23,7 +24,18 @@ export const Route = createRootRoute({
   },
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // don't mark stale after some timeout
+      staleTime: Infinity,
+      // these options are actually refetch on x **if stale** (i.e. they were inactive then were invalidated via sse)
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: 'always',
+    },
+  },
+});
 
 function RootComponent() {
   return (
@@ -57,8 +69,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
-        <div className='flex flex-col gap-4 p-4 min-h-dvh'>{children}</div>
+      <body className='grid grid-rows-[auto_1fr] min-h-dvh max-h-dvh overflow-hidden'>
+        <Nav />
+        <main className='flex flex-col gap-4 px-4 pb-4 h-full overflow-y-auto snap-y'>{children}</main>
         <Scripts />
       </body>
     </html>

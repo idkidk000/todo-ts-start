@@ -29,7 +29,7 @@ const variants = {
   muted: [
     core,
     base,
-    'border-foreground/10 bg-background-card hover:bg-background-card/75 active:bg-background-card/50 disabled:bg-background-card/25 disabled:text-foreground/75 text-foreground',
+    'border-foreground/10 bg-muted hover:bg-muted/75 active:bg-muted/50 disabled:bg-muted/25 disabled:text-foreground/75 text-muted-contrast',
   ],
   ghost: [core],
 } as const;
@@ -37,8 +37,8 @@ const variants = {
 export type ButtonVariant = keyof typeof variants;
 
 const sizes = {
-  sm: 'px-2 text-sm *:[svg]:size-4',
-  md: 'px-4 py-2 *:[svg]:size-4',
+  sm: 'px-2 py-1 text-sm *:[svg]:size-4',
+  md: 'px-4 py-1 *:[svg]:size-4',
   lg: 'px-4 py-2 *:[svg]:size-6',
   icon: 'p-2 *:[svg]:size-6',
 } as const;
