@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { and, eq, getTableColumns, inArray, max } from 'drizzle-orm';
 import SuperJSON from 'superjson';
+
 import { getSession } from '@/lib/better-auth/server';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable } from '@/lib/drizzle.server/schema';

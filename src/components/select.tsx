@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ComponentPropsWithoutRef, type RefObject, useCallback, useEffect, useRef } from 'react';
+
 import { cn } from '@/lib/utils';
 
 // TODO: add popover and make a custom component
@@ -48,7 +49,7 @@ export function Select<T extends string | number, M extends boolean>({
     if (!ref.current || !Array.isArray(value)) return;
     for (const option of ref.current.querySelectorAll('option'))
       option.selected = value.includes((type === 'number' ? Number(option.value) : option.value) as T);
-  }, [value, ref.current, type]);
+  }, [value, ref, type]);
 
   return (
     <select

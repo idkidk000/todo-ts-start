@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { int, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+
 import { userTable } from '@/lib/drizzle.server/schema/better-auth';
 import type { Repeat, Time } from '@/lib/schemas';
 
@@ -23,7 +24,9 @@ export const todoTable = sqliteTable(
       .$type<Time>(),
     dueAt: int({ mode: 'timestamp_ms' }),
     completedAt: int({ mode: 'timestamp_ms' }),
-    createdAt: int({ mode: 'timestamp_ms' }).notNull().default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
+    createdAt: int({ mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
     updatedAt: int({ mode: 'timestamp_ms' })
       .notNull()
       .$onUpdate(() => sql`(cast(unixepoch('subsec') * 1000 as int))`),
@@ -35,5 +38,7 @@ export const todoTable = sqliteTable(
 export const historyTable = sqliteTable('history', {
   id: int().primaryKey({ autoIncrement: true }),
   todoId: int().references(() => todoTable.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-  createdAt: int({ mode: 'timestamp_ms' }).notNull().default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
+  createdAt: int({ mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(cast(unixepoch('subsec') * 1000 as int))`),
 });

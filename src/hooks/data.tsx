@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react';
 import SuperJSON from 'superjson';
+
 import type { Todo } from '@/lib/schemas';
 import { todoSelect } from '@/lib/todos';
 import type { SseInvalidation } from '@/routes/api/sse';
@@ -12,7 +13,11 @@ interface Context {
 const Context = createContext<Context | null>(null);
 
 export function DataProvider({ children, initialTodos }: { children: ReactNode; initialTodos: Todo[] }) {
-  const todosQuery = useQuery({ queryKey: ['todos'], queryFn: todoSelect, initialData: initialTodos });
+  const todosQuery = useQuery({
+    queryKey: ['todos'],
+    queryFn: todoSelect,
+    initialData: initialTodos,
+  });
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -35,7 +40,7 @@ export function DataProvider({ children, initialTodos }: { children: ReactNode; 
     });
 
     return () => eventSource.close();
-  }, [queryClient.refetchQueries, queryClient.setQueryData]);
+  }, [queryClient]);
 
   const value: Context = useMemo(
     () => ({

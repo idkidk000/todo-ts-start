@@ -1,4 +1,5 @@
 import { gracefulShutdown, scheduleJob } from 'node-schedule';
+
 import { updateTodosJob } from '@/workers/jobs';
 
 export function start(): void {

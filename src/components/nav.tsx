@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { LoaderCircle } from 'lucide-react';
 import { useCallback } from 'react';
+
 import { Button } from '@/components/button';
 import { signOut, useSession } from '@/lib/better-auth/client';
 
@@ -11,7 +12,7 @@ export function Nav() {
 
   const handleSignoutClick = useCallback(() => signOut().finally(() => navigate({ to: '/' })), [navigate]);
   return (
-    <nav className='p-4 shadow-lg flex justify-between items-center gap-4 slide-in-down z-10 bg-primary text-light'>
+    <nav className='z-10 flex slide-in-down items-center justify-between gap-4 bg-primary p-4 text-light shadow-lg'>
       <Link to='/' className='me-auto'>
         <h1>Todos</h1>
       </Link>

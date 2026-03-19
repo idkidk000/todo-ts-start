@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
 import { type ChangeEvent, type ComponentProps, type FocusEvent, type ReactNode, useCallback, useState } from 'react';
+
 import { Button } from '@/components/button';
 import { cn } from '@/lib/utils';
 
@@ -71,8 +72,10 @@ export function Input<T extends string | number | boolean | Date>({
           size='sm'
           className='rounded-none'
           onClick={handleClick}
+          // oxlint-disable-next-line jsx_a11y/prefer-tag-over-role
           role='checkbox'
           aria-checked={show}
+          // oxlint-disable-next-line jsx_a11y/role-supports-aria-props
           aria-description={`Password is ${show ? 'shown' : 'hidden'}`}
         >
           {show ? <Eye /> : <EyeOff />}

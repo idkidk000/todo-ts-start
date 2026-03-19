@@ -1,7 +1,9 @@
 /// <reference types="vite/client" />
 
 import { exit } from 'node:process';
+
 import handler from '@tanstack/react-start/server-entry';
+
 import * as messageBusWorker from '@/workers/message-bus';
 import * as schedulerWorker from '@/workers/scheduler';
 

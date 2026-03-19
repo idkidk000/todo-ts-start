@@ -1,4 +1,5 @@
 import { Activity, type ComponentProps, useId } from 'react';
+
 import { Select } from '@/components/select';
 import { useFieldsMeta } from '@/hooks/fields-meta';
 import { useFieldContext } from '@/lib/form';
@@ -25,7 +26,7 @@ export function FormSelect<T extends string | number, M extends boolean>({
 
   return (
     <Activity mode={fieldsMeta && !fieldsMeta.has(field.name) ? 'hidden' : 'visible'}>
-      <div className='grid grid-cols-subgrid col-span-2 items-center gap-y-2 slide-in-up'>
+      <div className='col-span-2 grid slide-in-up grid-cols-subgrid items-center gap-y-2'>
         <label htmlFor={id} className='font-semibold'>
           {fieldLabel}
         </label>
@@ -38,11 +39,11 @@ export function FormSelect<T extends string | number, M extends boolean>({
           {...props}
         />
         {field.state.meta.errors.length && field.state.meta.isTouched ? (
-          <span className='col-start-2 slide-in-up text-danger text-sm' role='alert'>
+          <span className='col-start-2 slide-in-up text-sm text-danger' role='alert'>
             {field.state.meta.errors.join('. ')}
           </span>
         ) : fieldDescription ? (
-          <span className='col-start-2 slide-in-up text-muted text-sm'>{fieldDescription}</span>
+          <span className='col-start-2 slide-in-up text-sm text-muted'>{fieldDescription}</span>
         ) : null}
       </div>
     </Activity>

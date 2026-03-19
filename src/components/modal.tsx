@@ -15,6 +15,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+
 import { Button } from '@/components/button';
 import { cn } from '@/lib/utils';
 
@@ -36,23 +37,26 @@ const Context = createContext<Context | null>(null);
 export function Modal({ children }: { children: ReactNode }) {
   const modalRef = useRef<HTMLDialogElement | null>(null);
   // biome-ignore format: no
-  const value: Context = useMemo(() => ({
-    modalRef,
-    open() {
-      if (!modalRef.current) return
-      modalRef.current.style.display='block'
-      modalRef.current.showModal();
-    },
-    close() {
-      modalRef.current?.close();
-    },
-    toggle() {
-      if (!modalRef.current) return
-      modalRef.current.style.display='block'
-      if (modalRef.current.open) modalRef.current.close();
-      else modalRef.current.showModal();
-    },
-  }), []);
+  const value: Context = useMemo(
+    () => ({
+      modalRef,
+      open() {
+        if (!modalRef.current) return;
+        modalRef.current.style.display = 'block';
+        modalRef.current.showModal();
+      },
+      close() {
+        modalRef.current?.close();
+      },
+      toggle() {
+        if (!modalRef.current) return;
+        modalRef.current.style.display = 'block';
+        if (modalRef.current.open) modalRef.current.close();
+        else modalRef.current.showModal();
+      },
+    }),
+    []
+  );
   return <Context value={value}>{children}</Context>;
 }
 
@@ -66,10 +70,13 @@ export function ModalTrigger({ children, onClick, ...props }: ComponentProps<typ
   const { toggle } = useModal();
 
   // biome-ignore format: no
-  const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    toggle()
-    onClick?.(event);
-  }, [onClick]);
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      toggle();
+      onClick?.(event);
+    },
+    [onClick, toggle]
+  );
 
   return (
     <Button onClick={handleClick} {...props}>
@@ -82,10 +89,13 @@ export function ModalClose({ children, onClick, ...props }: ComponentProps<typeo
   const { close } = useModal();
 
   // biome-ignore format: no
-  const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    close();
-    onClick?.(event);
-  }, [onClick]);
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      close();
+      onClick?.(event);
+    },
+    [close, onClick]
+  );
 
   return (
     <Button onClick={handleClick} {...props}>
@@ -109,39 +119,53 @@ export function ModalContent({
   useEffect(() => {
     if (!modalRef.current) return;
     modalRef.current.style.display = 'none';
-  }, []);
+  }, [modalRef]);
 
   // biome-ignore format: no
-  const animatePulse = useCallback(() =>
-    modalRef.current?.animate(
-      [{ scale: '100%' }, { scale: '105%' }, { scale: '100%' }, { scale: '105%' }, { scale: '100%' }],
-      { duration: 300, easing: 'ease-in-out' }
-    ),
-  []);
+  const animatePulse = useCallback(
+    () =>
+      modalRef.current?.animate(
+        [{ scale: '100%' }, { scale: '105%' }, { scale: '100%' }, { scale: '105%' }, { scale: '100%' }],
+        {
+          duration: 300,
+          easing: 'ease-in-out',
+        }
+      ),
+    [modalRef]
+  );
 
   // biome-ignore format: no
-  const handleClick = useCallback((event: MouseEvent<HTMLDialogElement>) => {
-    if (closedBy !== 'any' && event.target === modalRef.current) animatePulse();
-    onClick?.(event);
-  }, [onClick, animatePulse, closedBy]);
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLDialogElement>) => {
+      if (closedBy !== 'any' && event.target === modalRef.current) animatePulse();
+      onClick?.(event);
+    },
+    [modalRef, onClick, animatePulse, closedBy]
+  );
 
   // biome-ignore format: no
-  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLDialogElement>) => {
-    if (closedBy !== 'any' && event.key === 'Escape') animatePulse();
-    onKeyDown?.(event);
-  }, [onKeyDown, animatePulse, closedBy]);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDialogElement>) => {
+      if (closedBy !== 'any' && event.key === 'Escape') animatePulse();
+      onKeyDown?.(event);
+    },
+    [onKeyDown, animatePulse, closedBy]
+  );
 
   // biome-ignore format: no
-  const handleClose = useCallback((event: SyntheticEvent<HTMLDialogElement, Event>) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      if (!modalRef.current) return;
-      timeoutRef.current = null;
-      if (modalRef.current.open) return;
-      modalRef.current.style.display = 'none';
-    }, CLOSING_MILLIS);
-    onClose?.(event);
-  }, [onClose]);
+  const handleClose = useCallback(
+    (event: SyntheticEvent<HTMLDialogElement, Event>) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        if (!modalRef.current) return;
+        timeoutRef.current = null;
+        if (modalRef.current.open) return;
+        modalRef.current.style.display = 'none';
+      }, CLOSING_MILLIS);
+      onClose?.(event);
+    },
+    [modalRef, onClose]
+  );
 
   const merged = cn(
     // base

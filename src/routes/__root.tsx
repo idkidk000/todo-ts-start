@@ -1,13 +1,15 @@
 /// <reference types="vite/client" />
 
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
-import type { ReactNode } from 'react';
-import '@/styles.css';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { FormDevtoolsPanel } from '@tanstack/react-form-devtools';
+
+import '@/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
+import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import type { ReactNode } from 'react';
+
 import { Nav } from '@/components/nav';
 
 export const Route = createRootRoute({
@@ -69,9 +71,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className='grid grid-rows-[auto_1fr] min-h-dvh max-h-dvh overflow-hidden'>
+      <body className='grid max-h-dvh min-h-dvh grid-rows-[auto_1fr] overflow-hidden'>
         <Nav />
-        <main className='flex flex-col gap-4 px-4 pb-4 h-full overflow-y-auto snap-y'>{children}</main>
+        <main className='flex h-full snap-y flex-col gap-4 overflow-y-auto px-4 pb-4'>{children}</main>
         <Scripts />
       </body>
     </html>

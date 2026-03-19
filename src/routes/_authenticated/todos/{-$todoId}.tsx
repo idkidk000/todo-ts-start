@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/a11y/noLabelWithoutControl: biome bug */
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
+
 import { Input } from '@/components/input';
 import { Modal, ModalContent, ModalTrigger, useModal } from '@/components/modal';
 import { Select } from '@/components/select';
@@ -18,7 +19,10 @@ type State = (typeof states)[number];
 
 function Dashboard() {
   const { todos } = useData();
-  const [filter, setFilter] = useState<{ state: State; search: string | null }>({ state: 'all', search: null });
+  const [filter, setFilter] = useState<{ state: State; search: string | null }>({
+    state: 'all',
+    search: null,
+  });
 
   const handleStateFilterChange = useCallback((state: State) => setFilter((prev) => ({ ...prev, state })), []);
   const handleSearchFilterChange = useCallback(
@@ -29,7 +33,7 @@ function Dashboard() {
   return (
     <Modal>
       <div
-        className='flex gap-4 flex-wrap items-center sticky top-0 bg-background shadow-lg z-5 -mx-4 px-4 py-2 snap-start'
+        className='sticky top-0 z-5 -mx-4 flex snap-start flex-wrap items-center gap-4 bg-background px-4 py-2 shadow-lg'
         role='menubar'
       >
         <h3 className='text-lg font-semibold'>Filters</h3>
@@ -83,7 +87,7 @@ function TodoModal() {
 
   useEffect(() => {
     if (todoId) open();
-  }, [todoId]);
+  }, [open, todoId]);
 
   return (
     <ModalContent onClose={handleClose}>

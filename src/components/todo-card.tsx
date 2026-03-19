@@ -1,5 +1,6 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
+
 import { Badge } from '@/components/badge';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -12,12 +13,12 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
 
   const handleDoneClick = useCallback(
     () => todoUpdate({ data: { id: id, done: !done } }).then(() => router.invalidate()),
-    [id, done, router.invalidate]
+    [id, done, router]
   );
 
   const handleSnoozedClick = useCallback(
     () => todoUpdate({ data: { id: id, snoozed: !snoozed } }).then(() => router.invalidate()),
-    [id, snoozed, router.invalidate]
+    [id, snoozed, router]
   );
 
   // FIXME: `Button`s generics are breaking `Link`s
@@ -25,7 +26,7 @@ export function TodoCard({ completedAt, createdAt, done, id, name, repeat, snooz
 
   return (
     <Card title={name || 'Untitled'}>
-      <div className='grid grid-cols-[auto_1fr] mx-auto gap-2'>
+      <div className='mx-auto grid grid-cols-[auto_1fr] gap-2'>
         <div className='contents'>
           <span>State</span>
           <Badge variant={done ? 'success' : snoozed ? 'warning' : 'danger'} className='me-auto mb-auto' size='sm'>

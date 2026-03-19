@@ -1,5 +1,6 @@
 import { createIsomorphicFn } from '@tanstack/react-start';
 import { getRequestHeaders } from '@tanstack/react-start/server';
+
 import { getSession as getSessionClient } from '@/lib/better-auth/client';
 import { getSession as getSessionServer } from '@/lib/better-auth/server';
 

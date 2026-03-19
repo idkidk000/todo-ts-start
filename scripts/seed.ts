@@ -1,9 +1,12 @@
+import { env } from 'node:process';
+
+import { eq } from 'drizzle-orm';
+
 import { signUpEmail } from '@/lib/better-auth/server';
+
+import 'dotenv/config';
 import { db } from '@/lib/drizzle.server';
 import { historyTable, todoTable, userTable } from '@/lib/drizzle.server/schema';
-import 'dotenv/config';
-import { env } from 'node:process';
-import { eq } from 'drizzle-orm';
 import { lowerToSentenceCase } from '@/lib/utils';
 
 const { SEED_USER_USER, SEED_USER_EMAIL, SEED_USER_PASSWORD, SEED_ADMIN_USER, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD } =

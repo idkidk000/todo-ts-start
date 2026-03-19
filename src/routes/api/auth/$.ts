@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { handler } from '@/lib/better-auth/server';
 
 // https://better-auth.com/docs/installation

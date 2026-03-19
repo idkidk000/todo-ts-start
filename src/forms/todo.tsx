@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form';
 import { type SubmitEvent, useCallback, useEffect, useMemo } from 'react';
 import z from 'zod';
+
 import { useData } from '@/hooks/data';
 import { FieldsMetaProvider } from '@/hooks/fields-meta';
 import { makeFieldsMeta, makeFieldsMetaFromDiscUnion, makeZodValidator, useAppForm, zodToJsonSchema } from '@/lib/form';
@@ -32,7 +33,7 @@ export function TodoForm({ todoId, onCompleted }: { todoId?: number; onCompleted
       name: '',
       snoozed: false,
     };
-  }, [todoId, todos.find]);
+  }, [todoId, todos]);
 
   const form = useAppForm({
     validators: {
@@ -51,12 +52,15 @@ export function TodoForm({ todoId, onCompleted }: { todoId?: number; onCompleted
     },
   });
 
-  useEffect(() => form.reset(defaultValues), [defaultValues, form.reset]);
+  useEffect(() => form.reset(defaultValues), [defaultValues, form]);
 
   const repeatMode = useStore(form.store, (state) => state.values.repeat.mode);
 
   const repeatFieldsMeta = useMemo(() => {
-    const result = makeFieldsMetaFromDiscUnion(repeatJsonSchema, repeatMode, { fieldName: 'mode', rootPath: 'repeat' });
+    const result = makeFieldsMetaFromDiscUnion(repeatJsonSchema, repeatMode, {
+      fieldName: 'mode',
+      rootPath: 'repeat',
+    });
     console.log('repeatFieldsMeta', result);
     return result;
   }, [repeatMode]);
@@ -66,7 +70,7 @@ export function TodoForm({ todoId, onCompleted }: { todoId?: number; onCompleted
       event.preventDefault();
       form.handleSubmit();
     },
-    [form.handleSubmit]
+    [form]
   );
 
   const handleDeleteClick = useCallback(() => {
@@ -75,12 +79,12 @@ export function TodoForm({ todoId, onCompleted }: { todoId?: number; onCompleted
       form.reset();
       onCompleted?.();
     });
-  }, [defaultValues.id, form.reset, onCompleted]);
+  }, [defaultValues.id, form, onCompleted]);
 
   return (
     <FieldsMetaProvider fieldsMeta={todoFieldsMeta}>
       <form
-        className='grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_auto_1fr] lg:grid-cols-[auto_1fr_auto_1fr_auto_1fr] gap-4 items-center mx-auto'
+        className='mx-auto grid grid-cols-[auto_1fr] items-center gap-4 md:grid-cols-[auto_1fr_auto_1fr] lg:grid-cols-[auto_1fr_auto_1fr_auto_1fr]'
         onSubmit={handleSubmit}
       >
         <form.AppField name='name'>{(field) => <field.FormInput type='text' />}</form.AppField>
@@ -108,7 +112,7 @@ export function TodoForm({ todoId, onCompleted }: { todoId?: number; onCompleted
           {/* TODO: repeat.monthDays and repeat.yearDays need another custom input type. maybe an input[type="text"] whose values are split on /[\s,]+/ and mapped to Number. or a combobox */}
         </FieldsMetaProvider>
 
-        <div className='col-span-full flex justify-center *:grow gap-2 md:w-md md:mx-auto'>
+        <div className='col-span-full flex justify-center gap-2 *:grow md:mx-auto md:w-md'>
           <form.Button type='submit'>{defaultValues?.id ? 'Update' : 'Create'}</form.Button>
           <form.Button type='reset' variant='warning'>
             Reset

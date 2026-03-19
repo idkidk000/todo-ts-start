@@ -1,16 +1,19 @@
 {
   "[css]": {
-    "editor.defaultFormatter": "biomejs.biome"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "editor.codeActionsOnSave": [],
   "editor.formatOnPaste": false,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "editor.formatOnType": false,
   "files.associations": {
@@ -18,5 +21,7 @@
   },
   "todo-tree.tree.disableCompactFolders": false,
   "todo-tree.tree.showBadges": true,
-  "typescript.experimental.useTsgo": true
+  "typescript.experimental.useTsgo": true,
+  "biome.enabled": false,
+  "oxc.enable": true
 }

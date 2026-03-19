@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+
 import { DataProvider } from '@/hooks/data';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { todoSelect } from '@/lib/todos';

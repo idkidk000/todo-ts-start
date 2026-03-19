@@ -1,6 +1,7 @@
 import { rmSync } from 'node:fs';
 import { createServer, Socket } from 'node:net';
 import { createInterface } from 'node:readline';
+
 import { SuperJSON } from 'superjson';
 
 const SOCKET_PATH = '.message-bus.sock';
@@ -137,7 +138,9 @@ export class MessageClient {
       socket.addListener('error', (err) => {
         if (retries === MAX_CONNECT_RETRIES) {
           clearInterval(interval);
-          throw new Error(`could not connect to ${SOCKET_PATH} after ${retries} attempts`, { cause: err });
+          throw new Error(`could not connect to ${SOCKET_PATH} after ${retries} attempts`, {
+            cause: err,
+          });
         }
       });
 

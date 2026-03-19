@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["**/*.gen.ts", "/migrations"],
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 120,
+  "sortImports": {
+    "partitionByNewline": false
+  },
+  "sortTailwindcss": {
+    "stylesheet": "src/styles.css"
+  }
+}

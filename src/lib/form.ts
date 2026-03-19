@@ -1,5 +1,6 @@
 import { createFormHook, createFormHookContexts } from '@tanstack/react-form';
 import z from 'zod';
+
 import { Button } from '@/components/button';
 import { FormInput } from '@/components/form-input';
 import { FormSelect } from '@/components/form-select';
@@ -78,7 +79,10 @@ export function makeFieldsMeta(openApiJsonSchema: Record<string, unknown>, rootP
 export function makeFieldsMetaFromDiscUnion(
   openApiJsonSchema: { oneOf?: unknown },
   discriminator: string,
-  { fieldName, rootPath }: { fieldName: string; rootPath: string } = { fieldName: 'kind', rootPath: 'params' }
+  { fieldName, rootPath }: { fieldName: string; rootPath: string } = {
+    fieldName: 'kind',
+    rootPath: 'params',
+  }
 ): FieldsMeta {
   const narrowed = (openApiJsonSchema.oneOf as unknown as { properties: { [fieldName]: { enum: string[] } } }[]).find(
     (item) => item.properties[fieldName].enum.includes(discriminator)

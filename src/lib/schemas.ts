@@ -114,5 +114,7 @@ export type History = z.infer<typeof historySchema>;
 export const historyWithTodoSchema = historySchema.omit({ todoId: true }).extend({ todo: todoSchema });
 export type HistoryWithTodo = z.infer<typeof historyWithTodoSchema>;
 
-export const todoWithHistorySchema = todoSchema.extend({ history: historySchema.omit({ todoId: true }) });
+export const todoWithHistorySchema = todoSchema.extend({
+  history: historySchema.omit({ todoId: true }),
+});
 export type TodoWithHistory = z.infer<typeof todoWithHistorySchema>;

@@ -2,6 +2,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { type SubmitEvent, useCallback, useState } from 'react';
 import z from 'zod';
+
 import { Card } from '@/components/card';
 import { getSessionOrThrow } from '@/lib/better-auth';
 import { signIn } from '@/lib/better-auth/client';
@@ -59,12 +60,12 @@ function Home() {
       event.preventDefault();
       form.handleSubmit();
     },
-    [form.handleSubmit]
+    [form]
   );
 
   return (
-    <Card title='Log in' className='max-w-lg mx-auto md:my-auto w-dvw lg:w-lg'>
-      <form className='grid grid-cols-[auto_1fr] gap-4 items-center mx-auto' onSubmit={handleSubmit}>
+    <Card title='Log in' className='mx-auto w-dvw max-w-lg md:my-auto lg:w-lg'>
+      <form className='mx-auto grid grid-cols-[auto_1fr] items-center gap-4' onSubmit={handleSubmit}>
         <form.AppField name='username'>{(field) => <field.FormInput type='text' />}</form.AppField>
         <form.AppField name='password'>{(field) => <field.FormInput type='password' />}</form.AppField>
         <form.AppField name='rememberMe'>{(field) => <field.FormInput type='checkbox' />}</form.AppField>
